@@ -17,6 +17,8 @@ namespace LinguaNews.Models
         public string Author { get; set; } = string.Empty;
         [Required]
         public string OriginalText { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+        public string TargetLanguage { get; set; } = string.Empty;
         public DateTime FetchedAt { get; set; } = DateTime.UtcNow;
         public List<Translation> Translations { get; set; } = new List<Translation>();
     }
