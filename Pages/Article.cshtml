@@ -3,7 +3,12 @@
 @{
     ViewData["Title"] = Model.DisplayArticle?.Title ?? "Read Article";
 }
-
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LinguaNews Article</title>
+</head>
+<body>
 @if (Model.DisplayArticle != null)
 {
     <div class="container-fluid">
@@ -65,3 +70,5 @@ else
     <a asp-page="/Index">Return to Home</a>
 }
 }
+</body>
+</html>

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LinguaNews.Models.LinguaNews.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore; // Required for .Include() and .FirstOrDefaultAsync()
 using System.ComponentModel.DataAnnotations;
@@ -17,6 +18,11 @@ namespace LinguaNews.Models
         public string Author { get; set; } = string.Empty;
         [Required]
         public string OriginalText { get; set; } = string.Empty;
+        public string TargetLanguage { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+        //DisplayTranslation needs to be adjusted. This is a placeholder so that it compiles.
+        public string DisplayTranslation { get; set; } = string.Empty;
+        public DisplayArticles DisplayArticle { get; set; } = new DisplayArticles();
         public DateTime FetchedAt { get; set; } = DateTime.UtcNow;
         public List<Translation> Translations { get; set; } = new List<Translation>();
     }
@@ -58,6 +64,13 @@ namespace LinguaNews.Models
                 await Task.Delay(300);
                 return $"({targetLanguageCode} Translation): Lorem ipsum dolor sit amet... (This is the translated text from the translation API)";
             }
+        }
+
+        public class DisplayArticles
+        {
+            public string Title { get; set; } = string.Empty;
+            public string OriginalUrl { get; set; } = string.Empty;
+            public string OriginalText { get; set; } = string.Empty;
         }
     }
 }
