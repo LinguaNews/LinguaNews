@@ -6,11 +6,11 @@ using System;
 [ApiController]
 [Route("api/[controller]")]
 public class NewsController : ControllerBase
-/*{
-	private readonly INewsApiAiService _newsService;
+{
+	private readonly INewsApiService _newsService;
 
 	// Constructor injection
-	public NewsController(INewsApiAiService newsService)
+	public NewsController(INewsApiService newsService)
 	{
 		_newsService = newsService;
 	}
@@ -21,21 +21,5 @@ public class NewsController : ControllerBase
 	{
 		var articles = await _newsService.GetArticlesAsync(q, ct);
 		return Ok(articles);
-	}
-}*/
-// Factory method to fetch and deserialize directly from NewsData.io
-{
-	public static async Task<ArticleData[]> FromNewsDataAsync(string apiKey, string query)
-	{
-		using (var client = new HttpClient())
-		{
-			// Example endpoint: https://newsdata.io/api/1/news?apikey=<apiKey>&q=<QUERY>
-			var url = $"https://newsdata.io/api/1/news?apikey={apiKey}&q={query}";
-			var json = await client.GetStringAsync(url);
-
-			// Use ArticleData.FromJson to get ArticleData[]
-			var articles = ArticleData.FromJson(json);
-			return articles ?? Array.Empty<ArticleData>();
-		}
 	}
 }
