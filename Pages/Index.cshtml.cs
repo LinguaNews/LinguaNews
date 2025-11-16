@@ -1,18 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using LinguaNews.Models.LinguaNews;
+
 
 namespace LinguaNews.Pages
 {
     public class IndexModel : PageModel
     {
+        static readonly HttpClient client = new HttpClient();
         // This property will hold our list of articles for the view to display
         [BindProperty(SupportsGet = true)]
-        public List<ArticleViewModel> Articles { get; set; } = new List<ArticleViewModel>();
+        public List<ArticleViewModel> Articles { get; set; } = [];
 
         // This is where you will eventually call the NewsAPI.
         public void OnGet()
         {
-            // For now, we load mock data as a placeholder.
+            var loadarticledata = client.GetAsync("https://newsdata.io/api/1/archive?apikey=pub_731b19e405ac490a9761d29863e3e748&q=example&language=en&from_date=2025-11-09&to_date=2025-11-16");
             Articles = LoadMockArticles();
         }
 

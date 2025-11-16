@@ -1,6 +1,6 @@
 using LinguaNews.Data; // <-- Assumes LinguaNewsDbContext is in this namespace
 using LinguaNews.Models;
-using LinguaNews.Models.LinguaNews.Services;
+using LinguaNews.Models.LinguaNews;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -93,7 +93,7 @@ namespace LinguaNews.Pages
 
             // 1. Load the article
             var snapshot = await _db.ArticleSnapshots
-                .Include(s => s.Translations)
+                //.Include(s => s.Translations)//
                 .FirstOrDefaultAsync(a => a.OriginalUrl == Url);
 
             if (snapshot == null)

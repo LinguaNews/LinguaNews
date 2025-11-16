@@ -1,12 +1,6 @@
-﻿using LinguaNews.Models.LinguaNews.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore; // Required for .Include() and .FirstOrDefaultAsync()
+﻿using LinguaNews.Models.LinguaNews;
 using System.ComponentModel.DataAnnotations;
 
-/* * These are the database models we defined earlier.
- * You would put these in a "Data/Models" folder.
- */
 namespace LinguaNews.Models
 {
     public class ArticleSnapshot
@@ -29,7 +23,7 @@ namespace LinguaNews.Models
     /* * These are mock services. In a real app, you would inject
      * real services that use HttpClient to call your APIs.
      */
-    namespace LinguaNews.Services
+    namespace LinguaNews
     {
         // Mock for an Article Extraction API (like Diffbot)
         public interface IArticleExtractionService

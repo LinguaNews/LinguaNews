@@ -1,4 +1,5 @@
-﻿namespace LinguaNews.Models
+﻿// FIX 1: The 'using' statement should match your Models folder path
+namespace LinguaNews.Models
 {
     public class Translation
     {
