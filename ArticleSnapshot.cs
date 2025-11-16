@@ -59,13 +59,6 @@ namespace LinguaNews.Models
                 return $"({targetLanguageCode} Translation): Lorem ipsum dolor sit amet... (This is the translated text from the translation API)";
             }
         }
-
-        public class DisplayArticles
-        {
-            public string Title { get; set; } = string.Empty;
-            public string OriginalUrl { get; set; } = string.Empty;
-            public string OriginalText { get; set; } = string.Empty;
-        }
     }
 }
 

@@ -3,24 +3,29 @@
 @{
     ViewData["Title"] = "Home Page";
 }
-<!DOCTYPE html>
 <html>
-<head>
-    <title>LinguaNews</title>
-</head>
-<body>
-<div class="text-center">
-    <h1 class="display-4">Welcome to LinguaNews</h1>
-    <p class="lead">Your personal feed for news and language learning, combined.</p>
-</div>
-
-<hr />
-    <div class="container mb-4">
-        <form asp-action="Index" method="get" class="d-flex justify-content-center">
-            <input type="text" name="searchQuery" class="form-control w-50 me-2"
-                   placeholder="Search articles..." value="@ViewData["CurrentFilter"]" />
-            <button type="submit" class="btn btn-primary">Search</button>
-        </form>
+    <body>
+        <hr />
+            <div>
+                 <div class="container mb-4">
+                        <form asp-action="Index" method="get" class="d-flex justify-content-center">
+                            <select name="category" class="form-select w-50 me-2">
+                                <option value="">-- Select Category --</option>
+                                <option value="business">Business</option>
+                                <option value="entertainment">Entertainment</option>
+                                <option value="environment">Environment</option>
+                                <option value="food">Food</option>
+                                <option value="health">Health</option>
+                                <option value="politics">Politics</option>
+                                <option value="science">Science</option>
+                                <option value="sports">Sports</option>
+                                <option value="technology">Technology</option>
+                                <option value="top">Top</option>
+                                <option value="world">World</option>
+                            </select>
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </form>
+        </div>
     </div>
 <div class="container">
     <div class="row">

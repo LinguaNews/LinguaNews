@@ -1,10 +1,12 @@
+using LinguaNews.Controllers;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container. 
 builder.Services.AddRazorPages();
 
 //Binding API keys to config class for data feed
-builder.Services.Configure<NewsApiAiOptions>(
+builder.Services.Configure<NewsApiOptions>(
     builder.Configuration.GetSection("NewsApiAi"));
 
 
