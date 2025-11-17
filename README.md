@@ -1,10 +1,24 @@
 # IS7024 Group Project
-### Clay Caddell, Jose Esquivel, Karthik Raturi
-![Logo](/LingaNews.png)
+
 # LinguaNews
 
+### Clay Caddell, Jose Esquivel, Karthik Raturi
+
+![Logo](/LingaNews.png)
+*Real-World Language Learning Through News Articles*
+
+
 ## 📰 Introduction
-LinguaNews teaches reading in a target language using real news articles. Imagine the ability to build a workable list of vocabulary using real-world news articles that are updated in real-time and rank/sort various articles based on difficulty and word frequency.
+
+### The Problem
+
+Language learners struggle to transition from textbook exercises to authentic content like news articles. Traditional apps use artificial, simplified content that emphasizes syntax over semantics and doesn't prepare students for real-world reading.
+
+### Our Solution
+**LinguaNews** bridges this gap by providing instant vocabulary support while reading authentic news articles. Imagine building a workable vocabulary list using real-time news articles that are automatically ranked by difficulty and word frequency. No more guessing which articles match your level - LinguaNews does the work for you.
+
+### Target Audience
+Language learners at A2-C1 CEFR levels who want to improve reading comprehension within context and with content native speakers actually consume.
 
 ---
 
@@ -106,9 +120,9 @@ And the user changes language 6 more times
 **Given** the ingest worker retrieves article HTML from a source  
 **When** normalization runs  
 **Then** the system stores:
-- `ContentSnapshot` - a paginated version of the article's text data
-- Source attribution
+- `ContentSnapshot` - a paginated version of the article's metadata (source, title, author, source, date, difficulty, reading time), followed by full article text
 - `ArticleVocabList` - a list of all words in the Article to feed to DeepL and/or cache in 'UserWord'
+- `VocabPanel` - popup appears on word click/ hover, which displays word definition, translation, part of speech, pronounciation audio button, and example sentence, concluded by 'Save Word' button and 'Close' button
 
 
 ### Change of Article Data 
@@ -171,11 +185,15 @@ And the vocabulary extraction step calls DeepL or internal NLP services
 ## 2.1 Save word and vocabulary tracking
 
 ### Save Word
-**Given** a user clicks Save Word in the reader  
+**Given** a user clicks 'Save Word' in the reader  
 **When** the save action completes  
 **Then** a `UserWord` record is created or updated with:
 - `AddedAt`
+- `SourceArticleID`
 - `WordDifficulty`
+- `Status` (e.g., 'Learning', 'Mastered')
+- `Action Buttons` (Audio, Details, Quiz, Remove)
+- `Exports` (CSV, Anki; generate file with word, translation, definition, source article)
 - DeepL Translation Data  
 And the 'UserWord' appears on `/Vocabulary`
 
