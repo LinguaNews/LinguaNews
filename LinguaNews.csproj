@@ -7,9 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Constructors\**" />
     <Compile Remove="NewFolder1\**" />
+    <Content Remove="Constructors\**" />
     <Content Remove="NewFolder1\**" />
+    <EmbeddedResource Remove="Constructors\**" />
     <EmbeddedResource Remove="NewFolder1\**" />
+    <None Remove="Constructors\**" />
     <None Remove="NewFolder1\**" />
   </ItemGroup>
 
@@ -21,10 +25,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Constructors\" />
   </ItemGroup>
 
 </Project>
