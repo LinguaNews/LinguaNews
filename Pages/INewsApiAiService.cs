@@ -1,27 +1,27 @@
+public interface INewsApiAiService
+{
+    Task<IReadOnlyList<NewsAiArticle>> GetArticlesAsync(
+        string? query = null,
+        CancellationToken ct = default);
+}
+
 using System.Net.Http;
 using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
 using System.Web;
-using LinguaNews;
-using LinguaNews.Controllers;
-public interface INewsApiService
-{
-    Task<IReadOnlyList<ArticleData>> GetArticlesAsync(
-        string? query = null,
-        CancellationToken ct = default);
-}
-public class NewsApiAiService : INewsApiService
+
+public class NewsApiAiService : INewsApiAiService
 {
     private readonly HttpClient _httpClient;
-    private readonly NewsApiOptions _TargetLanguage;
+    private readonly NewsApiAiOptions _options;
 
-    public NewsApiAiService(HttpClient httpClient, IOptions<NewsApiOptions> options)
+    public NewsApiAiService(HttpClient httpClient, IOptions<NewsApiAiOptions> options)
     {
         _httpClient = httpClient;
-        options = (IOptions<NewsApiOptions>)options.Value;
+        _options = options.Value;
     }
 
-    /*public async Task<IReadOnlyList<ArticleData>> GetArticlesAsync(string? query = null, CancellationToken ct = default)
+    public async Task<IReadOnlyList<NewsAiArticle>> GetArticlesAsync(string? query = null, CancellationToken ct = default)
     {
         var builder = new UriBuilder(_options.BaseUrl);
         var q = HttpUtility.ParseQueryString(builder.Query);
@@ -41,11 +41,6 @@ public class NewsApiAiService : INewsApiService
                    ?? throw new InvalidOperationException("Failed to deserialize NewsAPI.ai response.");
 
         return data.Articles;
-    }*/
-
-    Task<IReadOnlyList<ArticleData>> INewsApiService.GetArticlesAsync(string? query, CancellationToken ct)
-    {
-        throw new NotImplementedException();
     }
 }
 
