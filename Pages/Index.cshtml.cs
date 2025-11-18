@@ -12,17 +12,16 @@ namespace LinguaNews.Pages
 		// Use IHttpClientFactory (injected) instead of a static client
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly ILogger<IndexModel> _logger;
+        private readonly IConfiguration _config;
+        
 
-		// Use the API key and dates from your file
-		private const string ApiKey = "pub_731b19e405ac490a9761d29863e3e748";
-		private const string ApiBaseUrl = "https://newsdata.io/api/1/archive";
-
-		// Inject services in the constructor, can be relocated to subpage later
-		public IndexModel(IHttpClientFactory httpClientFactory, ILogger<IndexModel> logger)
+        // Inject services in the constructor, can be relocated to subpage later
+        public IndexModel(IHttpClientFactory httpClientFactory, ILogger<IndexModel> logger, IConfiguration config)
 		{
 			_httpClientFactory = httpClientFactory;
 			_logger = logger;
-		}
+            _config = config;
+        }
 
 		// Add properties to bind to the search form
 
@@ -47,9 +46,12 @@ namespace LinguaNews.Pages
 
 			var client = _httpClientFactory.CreateClient();
 
-			// Build the query string dynamically
-			var query = HttpUtility.ParseQueryString(string.Empty);
-			query["apikey"] = ApiKey;
+            var apiKey = _config["NewsData:ApiKey"];
+            var apiBaseUrl = _config["NewsData:BaseUrl"];
+
+            // Build the query string dynamically
+            var query = HttpUtility.ParseQueryString(string.Empty);
+			query["apikey"] = apiKey;
 			query["language"] = Language;
 			query["from_date"] = "2025-11-09"; // Date from your file
 			query["to_date"] = "2025-11-16"; // Date from your file
@@ -59,7 +61,7 @@ namespace LinguaNews.Pages
 			    ? SearchTerm
 			    : "language learning"; // Default search if none provided
 
-			var builder = new UriBuilder(ApiBaseUrl) { Query = query.ToString() };
+			var builder = new UriBuilder(apiBaseUrl) { Query = query.ToString() };
 			string apiUrl = builder.ToString();
 
 			try
