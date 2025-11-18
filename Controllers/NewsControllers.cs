@@ -1,14 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using LinguaNews;
+using LinguaNews.Services;
 
 [ApiController]
 [Route("api/[controller]")]
 public class NewsController : ControllerBase
 {
-	private readonly INewsApiAiService _newsService;
+	private readonly INewsAPIAIService _newsService;
 
 	// Constructor injection
-	public NewsController(INewsApiAiService newsService)
+	public NewsController(INewsAPIAIService newsService)
 	{
 		_newsService = newsService;
 	}
