@@ -6,5 +6,6 @@ namespace LinguaNews.Options
 		public string ApiKey { get; set; } = string.Empty;
 		public int PageSize { get; set; } = 20;
 		public string Language { get; set; } = "en";
-	}
+        public string CefrApiKey { get; set; } = string.Empty;
+    }
 }
