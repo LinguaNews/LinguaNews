@@ -40,6 +40,13 @@
                </div>
           </div>
      </form>
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-warning mt-3" role="alert">
+            @Model.ErrorMessage
+        </div>
+    }
+
 
      <hr />
 

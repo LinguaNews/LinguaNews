@@ -38,70 +38,108 @@ namespace LinguaNews.Pages
 
 		// It holds the final list of articles for the view to display.
 		public List<ArticleViewModel> Articles { get; set; } = [];
+        public string? ErrorMessage { get; set; }
+
+        public IndexModel(string? errorMessage)
+        {
+            ErrorMessage = errorMessage;
+        }
 
 
-		// Change OnGet to be Asynchronous
-		public async Task OnGetAsync()
-		{
-			// This replaces your LoadMockArticles()
+        // Change OnGet to be Asynchronous
+        // Change OnGet to be Asynchronous
+        public async Task OnGetAsync()
+        {
+            var client = _httpClientFactory.CreateClient();
 
-			var client = _httpClientFactory.CreateClient();
+            // Build the query string dynamically
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["apikey"] = ApiKey;
+            query["language"] = Language;
+            query["from_date"] = "2025-11-09"; // Date from your file
+            query["to_date"] = "2025-11-16";   // Date from your file
 
-			// Build the query string dynamically
-			var query = HttpUtility.ParseQueryString(string.Empty);
-			query["apikey"] = ApiKey;
-			query["language"] = Language;
-			query["from_date"] = "2025-11-09"; // Date from your file
-			query["to_date"] = "2025-11-16"; // Date from your file
+            // Add the search term IF the user provided one, otherwise use a default
+            query["q"] = !string.IsNullOrWhiteSpace(SearchTerm)
+                ? SearchTerm
+                : "language learning"; // Default search if none provided
 
-			// Add the search term IF the user provided one, otherwise use a default
-			query["q"] = !string.IsNullOrWhiteSpace(SearchTerm)
-			    ? SearchTerm
-			    : "language learning"; // Default search if none provided
+            var builder = new UriBuilder(ApiBaseUrl) { Query = query.ToString() };
+            string apiUrl = builder.ToString();
 
-			var builder = new UriBuilder(ApiBaseUrl) { Query = query.ToString() };
-			string apiUrl = builder.ToString();
+            try
+            {
+                // Use RequestAborted so the call cancels if the user navigates away.
+                var response = await client.GetAsync(apiUrl, HttpContext.RequestAborted);
 
-			try
-			{
-				// Call the API
-				var response = await client.GetAsync(apiUrl);
+                // Handle non-success status codes explicitly.
+                if (!response.IsSuccessStatusCode)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                    {
+                        ErrorMessage = "API rate limit reached. Please try again later.";
+                        _logger.LogWarning("NewsData.io API rate limit hit (HTTP 429).");
+                    }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                    {
+                        ErrorMessage = "Access to the news service was denied. Please verify the API key.";
+                        _logger.LogWarning("NewsData.io API returned 403 Forbidden.");
+                    }
+                    else
+                    {
+                        ErrorMessage = "Unable to load articles right now. Please try again later.";
+                        _logger.LogWarning("NewsData.io API call failed with status code {StatusCode}", response.StatusCode);
+                    }
 
-				if (response.IsSuccessStatusCode)
-				{
-					// Deserialize the JSON Response
-					var apiResponse = await response.Content.ReadFromJsonAsync<NewsDataResponse>();
+                    return;
+                }
 
-					if (apiResponse != null && apiResponse.Status == "success" && apiResponse.Results != null)
-					{
-						// Map the API data to our ArticleViewModel
-						Articles = apiResponse.Results
-						    // Filter out articles with no title/description
-						    .Where(item => !string.IsNullOrEmpty(item.Title) && !string.IsNullOrEmpty(item.Description))
-						    .Select(static item => new ArticleViewModel
-						    {
-							    Title = item.Title ?? "No Title",
-							    Description = item.Description ?? "No Description",
-							    Url = item.Link, // Uses the "link" property from the API
-							    UrlToImage = item.ImageUrl, // Uses the "image_url" property
-							    SourceName = item.SourceId ?? "Unknown Source" // Uses "source_id"
-						    })
-						    .ToList();
-					}
-				}
-				else
-				{
-					_logger.LogWarning("NewsData.io API call failed with status code {StatusCode}", response.StatusCode);
-				}
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error fetching articles from NewsData.io");
-			}
-		}
+                // Deserialize the JSON Response
+                var apiResponse = await response.Content.ReadFromJsonAsync<NewsDataResponse>();
 
-		// --- This helper method is no longer needed, as we're calling the real API ---
-		/*
+                if (apiResponse == null || apiResponse.Status != "success")
+                {
+                    ErrorMessage = "Received an unexpected response from the news service.";
+                    _logger.LogWarning("NewsData.io returned null or non-success status: {Status}", apiResponse?.Status);
+                    return;
+                }
+
+                if (apiResponse.Results == null || apiResponse.Results.Count == 0)
+                {
+                    ErrorMessage = $"No articles available in {Language} for the selected dates.";
+                    Articles = [];
+                    return;
+                }
+
+                // Map the API data to our ArticleViewModel
+                Articles = apiResponse.Results
+                    // Filter out articles with no title/description
+                    .Where(item => !string.IsNullOrEmpty(item.Title) && !string.IsNullOrEmpty(item.Description))
+                    .Select(static item => new ArticleViewModel
+                    {
+                        Title = item.Title ?? "No Title",
+                        Description = item.Description ?? "No Description",
+                        Url = item.Link ?? string.Empty,        // Uses the "link" property from the API
+                        UrlToImage = item.ImageUrl ?? string.Empty, // Uses the "image_url" property
+                        SourceName = item.SourceId ?? "Unknown Source" // Uses "source_id"
+                    })
+                    .ToList();
+            }
+            catch (OperationCanceledException)
+            {
+                // Request was cancelled (e.g., user navigated away). No user message needed.
+                _logger.LogInformation("NewsData.io request was cancelled.");
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "An unexpected error occurred while loading articles.";
+                _logger.LogError(ex, "Error fetching articles from NewsData.io");
+            }
+        }
+
+
+        // --- This helper method is no longer needed, as we're calling the real API ---
+        /*
 using microsoft.aspnetcore.mvc;
 using microsoft.aspnetcore.mvc.razorpages;
 using system.text.json;
@@ -177,11 +215,11 @@ namespace linguanews.pages
     }
 }
 */
-	}
+    }
 
 
-	// It contains only the data we need to display on the page.
-	public class ArticleViewModel
+    // It contains only the data we need to display on the page.
+    public class ArticleViewModel
 	{
 		public string Title { get; set; } = string.Empty;
 		public string Description { get; set; } = string.Empty;
