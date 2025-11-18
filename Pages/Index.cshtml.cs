@@ -1,9 +1,10 @@
+using LinguaNews.Models.LinguaNews;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Web;
-using LinguaNews.Models.LinguaNews;
 
 namespace LinguaNews.Pages
 {
@@ -48,16 +49,20 @@ namespace LinguaNews.Pages
 
             var apiKey = _config["NewsData:ApiKey"];
             var apiBaseUrl = _config["NewsData:BaseUrl"];
+			var lastDays = _config["NewsData:LastHowManyDays"];
+
+            var today = DateTime.UtcNow.Date;
+            var fromDate = today.AddDays(int.Parse(lastDays));
 
             // Build the query string dynamically
             var query = HttpUtility.ParseQueryString(string.Empty);
 			query["apikey"] = apiKey;
 			query["language"] = Language;
-			query["from_date"] = "2025-11-09"; // Date from your file
-			query["to_date"] = "2025-11-16"; // Date from your file
+			query["from_date"] = fromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+			query["to_date"] = today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
-			// Add the search term IF the user provided one, otherwise use a default
-			query["q"] = !string.IsNullOrWhiteSpace(SearchTerm)
+            // Add the search term IF the user provided one, otherwise use a default
+            query["q"] = !string.IsNullOrWhiteSpace(SearchTerm)
 			    ? SearchTerm
 			    : "language learning"; // Default search if none provided
 
