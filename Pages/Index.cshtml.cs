@@ -40,9 +40,14 @@ namespace LinguaNews.Pages
         // A user-friendly error message to display in the UI when the API fails.
         public string? ErrorMessage { get; set; }
 
+        // Indicates if data is currently loading (for showing a spinner in the UI).
+        public bool IsLoading { get; private set; }
+
         // Change OnGet to be asynchronous
         public async Task OnGetAsync()
         {
+            IsLoading = true;
+
             // ✅ Normalize and validate search input before building API query
             SearchTerm = SearchTerm?.Trim();
 
@@ -58,21 +63,21 @@ namespace LinguaNews.Pages
                 SearchTerm = SearchTerm.Substring(0, 50);
             }
 
-            var client = _httpClientFactory.CreateClient();
-
-            // Build the query string dynamically
-            var query = HttpUtility.ParseQueryString(string.Empty);
-            query["apikey"] = ApiKey;
-            query["language"] = Language;
-            query["from_date"] = "2025-11-09"; // Date from your file
-            query["to_date"] = "2025-11-16";   // Date from your file
-            query["q"] = SearchTerm;
-
-            var builder = new UriBuilder(ApiBaseUrl) { Query = query.ToString() };
-            string apiUrl = builder.ToString();
-
             try
             {
+                var client = _httpClientFactory.CreateClient();
+
+                // Build the query string dynamically
+                var query = HttpUtility.ParseQueryString(string.Empty);
+                query["apikey"] = ApiKey;
+                query["language"] = Language;
+                query["from_date"] = "2025-11-09"; // Date from your file
+                query["to_date"] = "2025-11-16";   // Date from your file
+                query["q"] = SearchTerm;
+
+                var builder = new UriBuilder(ApiBaseUrl) { Query = query.ToString() };
+                string apiUrl = builder.ToString();
+
                 // Use RequestAborted so the call cancels if the user navigates away.
                 var response = await client.GetAsync(apiUrl, HttpContext.RequestAborted);
 
@@ -138,6 +143,10 @@ namespace LinguaNews.Pages
             {
                 ErrorMessage = "An unexpected error occurred while loading articles.";
                 _logger.LogError(ex, "Error fetching articles from NewsData.io");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
     }
