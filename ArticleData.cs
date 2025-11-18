@@ -46,6 +46,7 @@ namespace LinguaNews
 
         [JsonProperty("source_id")]
         public string SourceId { get; set; }
+        public string DifficultyEstimate { get; set; } = "Unranked";
     }
 
     public partial class ArticleData
