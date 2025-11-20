@@ -1,9 +1,13 @@
+using LinguaNews;
+using LinguaNews.Options;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();
-
+builder.Services.Configure<NewsApiOptions>(builder.Configuration.GetSection("NewsApiOptions"));
+builder.Services.AddScoped<INewsApiAiService, NewsApiAiService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
