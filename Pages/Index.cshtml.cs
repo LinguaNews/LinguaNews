@@ -1,3 +1,5 @@
+using LinguaNews.Models;
+using LinguaNews.Models.LinguaNews;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Web;
@@ -11,6 +13,8 @@ namespace LinguaNews.Pages
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly ILogger<IndexModel> _logger;
+        private readonly IConfiguration _config;
+        
 
 		private const string ApiKey = "pub_731b19e405ac490a9761d29863e3e748";
 		private const string ApiBaseUrl = "https://newsdata.io/api/1/archive";
@@ -19,7 +23,8 @@ namespace LinguaNews.Pages
 		{
 			_httpClientFactory = httpClientFactory;
 			_logger = logger;
-		}
+            _config = config;
+        }
 
 		[BindProperty(SupportsGet = true)]
 		public string? SearchTerm { get; set; }
@@ -36,14 +41,26 @@ namespace LinguaNews.Pages
 			var client = _httpClientFactory.CreateClient();
 			var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
 
-			// Build Query
-			query["apikey"] = ApiKey;
-			query["language"] = Language;
-			query["from_date"] = "2025-11-09";
-			query["to_date"] = "2025-11-16";
-			query["q"] = !string.IsNullOrWhiteSpace(SearchTerm) ? SearchTerm : "language learning";
+            var apiKey = _config["NewsData:ApiKey"];
+            var apiBaseUrl = _config["NewsData:BaseUrl"];
+			var lastDays = _config["NewsData:LastHowManyDays"];
 
-			var builder = new UriBuilder(ApiBaseUrl) { Query = query.ToString() };
+            var today = DateTime.UtcNow.Date;
+            var fromDate = today.AddDays(int.Parse(lastDays));
+
+            // Build the query string dynamically
+            var query = HttpUtility.ParseQueryString(string.Empty);
+			query["apikey"] = apiKey;
+			query["language"] = Language;
+			query["from_date"] = fromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+			query["to_date"] = today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+            // Add the search term IF the user provided one, otherwise use a default
+            query["q"] = !string.IsNullOrWhiteSpace(SearchTerm)
+			    ? SearchTerm
+			    : "language learning"; // Default search if none provided
+
+			var builder = new UriBuilder(apiBaseUrl) { Query = query.ToString() };
 			string apiUrl = builder.ToString();
 
 			try

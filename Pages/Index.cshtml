@@ -1,25 +1,19 @@
 ﻿@page
 @model LinguaNews.Pages.IndexModel
 @{
-     ViewData["Title"] = "Article Feed";
+    ViewData["Title"] = "Article Feed";
 }
-<!DOCTYPE html>
-<html>
-<head>
-    <title>LinguaNews</title>
-</head>
-<body>
-     <div class="text-center">
-          <h1 class="display-4">Article Feed</h1>
-          <p>Real-world news articles for language immersion.</p>
-     </div>
 
-     <form method="get" class="mb-4">
-          <div class="row">
-               <div class="col-md-8">
-                    <label for="searchTermInput" class="form-label">Search Keyword</label>
-                    <input type="text" class="form-control" id="searchTermInput" name="SearchTerm" placeholder="e.g., technology, finance..." value="@Model.SearchTerm">
-               </div>
+<div class="text-center">
+    <h1 class="display-4">Article Feed</h1>
+    <p>Real-world news articles for language immersion.</p>
+</div>
+  <form method="get" class="mb-4">
+      <div class="row">
+          <div class="col-md-8">
+              <label for="searchTermInput" class="form-label">Search Keyword</label>
+              <input type="text" class="form-control" id="searchTermInput" name="SearchTerm" placeholder="e.g., technology, finance..." value="@Model.SearchTerm">
+          </div>
 
                <div class="col-md-3">
                     <label for="languageSelect" class="form-label">Language</label>
@@ -35,39 +29,37 @@
                     </select>
                </div>
 
-               <div class="col-md-1 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">Search</button>
-               </div>
+          <div class="col-md-1 d-flex align-items-end">
+              <button type="submit" class="btn btn-primary w-100">Search</button>
           </div>
-     </form>
+      </div>
+  </form>
 
-     <hr />
+<hr />
 
-     <div class="row">
-          @if (Model.Articles.Any())
-          {
-               @foreach (var article in Model.Articles)
-               {
-                    <div class="col-md-4 mb-3">
-                         <div class="card h-100">
-                              @if (!string.IsNullOrEmpty(article.UrlToImage))
-                              {
-                                   <img src="@article.UrlToImage" class="card-img-top" alt="@article.Title" style="height: 200px; object-fit: cover;">
-                              }
-                              else
-                              {
-                                   <img src="https://via.placeholder.com/350x200.png?text=News" class="card-img-top" alt="Placeholder">
-                              }
-                              <div class="card-body d-flex flex-column">
-                                   <h5 class="card-title">@article.Title</h5>
-                                   <p class="card-text">@article.Description</p>
-                                   <small class="text-muted mb-2">@article.SourceName</small>
+<div class="row">
+    @if (Model.Articles.Any())
+    {
+        @foreach (var article in Model.Articles)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    @if (!string.IsNullOrEmpty(article.UrlToImage))
+                    {
+                        <img src="@article.UrlToImage" class="card-img-top" alt="@article.Title" style="height: 200px; object-fit: cover;">
+                    }
+                    else
+                    {
+                        <img src="https://via.placeholder.com/350x200.png?text=News" class="card-img-top" alt="Placeholder">
+                    }
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@article.Title</h5>
+                        <p class="card-text">@article.Description</p>
+                        <small class="text-muted mb-2">@article.SourceName</small>
 
-                                   <a asp-page="/Article" asp-route-url="@article.Url" class="btn btn-outline-primary mt-auto">
-                                        Read & Translate
-                                   </a>
-                              </div>
-                         </div>
+                        <a asp-page="/Article" asp-route-url="@article.Url" class="btn btn-outline-primary mt-auto">
+                            Read & Translate
+                        </a>
                     </div>
                }
           }
