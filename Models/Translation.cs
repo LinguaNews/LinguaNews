@@ -1,18 +1,20 @@
 ﻿// FIX 1: The 'using' statement should match your Models folder path
+using System.ComponentModel.DataAnnotations;
+
 namespace LinguaNews.Models
 {
     public class Translation
     {
         public int Id { get; set; }
-
+        
         // Attribute for which language this is
-        public string LanguageCode { get; set; }
+        public string LanguageCode { get; set; } = string.Empty;
 
         // ATTRIBUTE MOVED HERE: This is the actual translated text
-        public string TranslatedText { get; set; }
+        public string TranslatedText { get; set; } = string.Empty;
 
         // This links it back to the one article it belongs to
         public int ArticleSnapshotId { get; set; }
-        public ArticleSnapshot ArticleSnapshot { get; set; }
+        public ArticleSnapshot? ArticleSnapshot { get; set; }
     }
 }
