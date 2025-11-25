@@ -29,12 +29,12 @@ namespace LinguaNews.Pages
         // --- Properties to hold data for the View (No changes) ---
 
         [BindProperty(SupportsGet = true)]
-        public string Url { get; set; } = string.Empty;
+        public new string Url { get; set; } = string.Empty;
 
         [BindProperty]
         public string TargetLanguage { get; set; } = "ES";
 
-        public ArticleSnapshot? DisplayArticle { get; set; }
+        public ArticleSnapshot? CurrentArticle { get; set; }
 
         public string? DisplayTranslation { get; set; }
 
@@ -80,7 +80,7 @@ namespace LinguaNews.Pages
             }
 
             // 4. Set the property for the view
-            DisplayArticle = snapshot;
+            CurrentArticle = snapshot;
             return Page();
         }
 
@@ -101,7 +101,7 @@ namespace LinguaNews.Pages
                 return RedirectToPage("/Index");
             }
 
-            DisplayArticle = snapshot;
+            CurrentArticle = snapshot;
 
             // 2. Check for existing translation
             var existingTranslation = snapshot.Translations

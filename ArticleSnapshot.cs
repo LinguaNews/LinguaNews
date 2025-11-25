@@ -16,7 +16,7 @@ namespace LinguaNews.Models
         public string Url { get; set; } = string.Empty;
         //DisplayTranslation needs to be adjusted. This is a placeholder so that it compiles.
         public string DisplayTranslation { get; set; } = string.Empty;
-        public DisplayArticles DisplayArticle { get; set; } = new DisplayArticles();
+        public CurrentArticles CurrentArticle { get; set; } = new CurrentArticles();
         public DateTime FetchedAt { get; set; } = DateTime.UtcNow;
         public List<Translation> Translations { get; set; } = new List<Translation>();
     }
@@ -60,7 +60,7 @@ namespace LinguaNews.Models
             }
         }
 
-        public class DisplayArticles
+        public class CurrentArticles
         {
             public string Title { get; set; } = string.Empty;
             public string OriginalUrl { get; set; } = string.Empty;

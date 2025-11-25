@@ -18,9 +18,10 @@ namespace LinguaNews.Data
         public DbSet<ArticleSnapshot> ArticleSnapshots { get; set; }
         public DbSet<Translation> Translations { get; set; }
 
-        internal async Task SaveChangesAsync()
-        {
-            throw new NotImplementedException();
-        }
-    }
+		public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+		{
+			// Add custom logic here (e.g., audit logging)
+			return await base.SaveChangesAsync(cancellationToken);
+		}
+	}
 }

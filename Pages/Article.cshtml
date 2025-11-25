@@ -1,7 +1,7 @@
 ﻿@page
 @model LinguaNews.Models.ArticleSnapshot
 @{
-    ViewData["Title"] = Model.DisplayArticle?.Title ?? "Read Article";
+    ViewData["Title"] = Model.CurrentArticle?.Title ?? "Read Article";
 }
 <!DOCTYPE html>
 <html>
@@ -9,13 +9,13 @@
     <title>LinguaNews Article</title>
 </head>
 <body>
-@if (Model.DisplayArticle != null)
+@if (Model.CurrentArticle != null)
 {
     <div class="container-fluid">
         <div class="row sticky-top bg-light p-3 border-bottom shadow-sm">
             <div class="col-md-8">
-                <h3>@Model.DisplayArticle.Title</h3>
-                <a href="@Model.DisplayArticle.OriginalUrl" target="_blank" rel="noopener noreferrer">
+                <h3>@Model.CurrentArticle.Title</h3>
+                <a href="@Model.CurrentArticle.OriginalUrl" target="_blank" rel="noopener noreferrer">
                     Read original on external site
                 </a>
             </div>
@@ -42,7 +42,7 @@
             <div class="col-md-6">
                 <h4>Original Text</h4>
                 <div class="article-content p-3 border rounded bg-white">
-                    <pre style="white-space: pre-wrap; word-wrap: break-word; font-family: inherit; font-size: inherit;">@Model.DisplayArticle.OriginalText</pre>
+                    <pre style="white-space: pre-wrap; word-wrap: break-word; font-family: inherit; font-size: inherit;">@Model.CurrentArticle.OriginalText</pre>
                 </div>
             </div>
 
