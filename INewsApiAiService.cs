@@ -2,11 +2,12 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
 using System.Web;
+using LinguaNews;
 using LinguaNews.Options;
 
-namespace LinguaNews.Services
+namespace LinguaNews
 {
-    public interface INewsAPIAIService
+    public interface INewsApiAiService
     {
         Task<IReadOnlyList<ArticleData>>GetArticlesAsync(string? q, CancellationToken ct);
     }
@@ -18,8 +19,8 @@ namespace LinguaNews.Services
         public List<ArticleData> Articles { get; set; } = new();
     }
 
-    public class NewsApiAiService : INewsAPIAIService
-	{
+    public class NewsApiAiService : INewsApiAiService
+    {
         private readonly HttpClient _httpClient;
         private readonly NewsApiOptions _options;
 
@@ -51,7 +52,7 @@ namespace LinguaNews.Services
             return data.Articles;
         }
 
-        Task<IReadOnlyList<ArticleData>> INewsAPIAIService.GetArticlesAsync(string? query, CancellationToken ct)
+        Task<IReadOnlyList<ArticleData>> INewsApiAiService.GetArticlesAsync(string? query, CancellationToken ct)
         {
             throw new NotImplementedException();
         }

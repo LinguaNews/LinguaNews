@@ -17,7 +17,10 @@ namespace LinguaNews.Data
         // These properties will become your tables in the database
         public DbSet<ArticleSnapshot> ArticleSnapshots { get; set; }
         public DbSet<Translation> Translations { get; set; }
-        // NEW: The table for your 1000 common words cache
-        public DbSet<CommonWord> CommonWords { get; set; }
+
+        internal async Task SaveChangesAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

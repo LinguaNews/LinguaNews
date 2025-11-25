@@ -1,5 +1,5 @@
 ﻿@page
-@model LinguaNews.Pages.ArticleModel
+@model LinguaNews.Models.ArticleSnapshot
 @{
     ViewData["Title"] = Model.DisplayArticle?.Title ?? "Read Article";
 }
@@ -7,202 +7,68 @@
 <html>
 <head>
     <title>LinguaNews Article</title>
-
-     <style>   /* added in line, for single word popover functionality within article. can be transliterated to overall stylesheet/ layout later*/
-          /* Style for the words we can click on */
-          .word-lookup {
-               cursor: pointer;
-               transition: background-color 0.2s;
-               border-bottom: 1px dotted #ccc;
-          }
-
-               .word-lookup:hover {
-                    background-color: #fcf8e3;    /* added a light-yellow highlight*/
-                    border-bottom: 2px solid #0d6efd;
-               }
-
-          /* The popover panel for the translation */
-          #word-popover {
-               display: none; /* hidden by default*/
-               position: fixed;
-               bottom: 0;
-               left: 0;
-               width: 100%;
-               background-color: #fff;
-               border-top: 4px solid #0d6efd;
-               padding: 20px;
-               box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
-               z-index: 1000;
-          }
-
-               #word-popover.show {
-                    display: block;
-                    animation: slideUp 0.3s ease-out;
-               }
-
-          @@keyframes slideUp {
-               from {
-                    transform: translateY(100%);
-               }
-
-               to {
-                    transform: translateY(0);
-               }
-          }
-     </style>
 </head>
 <body>
-     @if (Model.DisplayArticle != null)
-     {
-          <div class="container-fluid">
-               <div class="row sticky-top bg-light p-3 border-bottom shadow-sm">
-                    <div class="col-md-7">
-                         <h4 class="text-truncate">@Model.DisplayArticle.Title</h4>
+@if (Model.DisplayArticle != null)
+{
+    <div class="container-fluid">
+        <div class="row sticky-top bg-light p-3 border-bottom shadow-sm">
+            <div class="col-md-8">
+                <h3>@Model.DisplayArticle.Title</h3>
+                <a href="@Model.DisplayArticle.OriginalUrl" target="_blank" rel="noopener noreferrer">
+                    Read original on external site
+                </a>
+            </div>
+            
+            <div class="col-md-4 align-self-center">
+                <form method="post">
+                    <input type="hidden" asp-for="Url" />
+                    
+                    <div class="input-group">
+                        <select asp-for="TargetLanguage" class="form-select">
+                            <option value="ES">Spanish</option>
+                            <option value="FR">French</option>
+                            <option value="DE">German</option>
+                            <option value="JA">Japanese</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Translate</button>
                     </div>
+                </form>
+            </div>
+        </div>
 
-                    <div class="col-md-5 align-self-center">
-                         <form method="post">
-                              <input type="hidden" asp-for="Url" value="@Model.Url" />
-                              <div class="input-group">
-                                   <span class="input-group-text bg-white"><i class="bi bi-translate"></i></span>
-                                   <select asp-for="TargetLanguage" id="TargetLanguageSelect" class="form-select">
-                                        <option value="EN">English</option>
-                                        <option value="ES">Spanish</option>
-                                        <option value="FR">French</option>
-                                        <option value="DE">German</option>
-                                        <option value="IT">Italian</option>
-                                        <option value="PT">Portuguese</option>
-                                        <option value="JA">Japanese</option>
-                                        <option value="ZH">Chinese</option>
-                                   </select>
-                                   <button type="submit" class="btn btn-primary">Translate Full</button>
-                              </div>
-                         </form>
-                    </div>
-               </div>
+        <div class="row mt-4">
+            
+            <div class="col-md-6">
+                <h4>Original Text</h4>
+                <div class="article-content p-3 border rounded bg-white">
+                    <pre style="white-space: pre-wrap; word-wrap: break-word; font-family: inherit; font-size: inherit;">@Model.DisplayArticle.OriginalText</pre>
+                </div>
+            </div>
 
-               <div class="row mt-4">
-                    <div class="col-md-6 border-end">
-                         <h5 class="text-secondary mb-3">Original Text <small class="text-muted fs-6">(Click any word)</small></h5>
-                         <div class="article-content p-3 rounded bg-light" id="original-text-container">
-                              <pre style="white-space: pre-wrap; word-wrap: break-word; font-family: Georgia, serif; font-size: 1.1rem; line-height: 1.6;">@Model.DisplayArticle.OriginalText</pre>
-                         </div>
-                    </div>
-
-                    <div class="col-md-6">
-                         <h5 class="text-secondary mb-3">Full Translation</h5>
-                         <div class="article-content p-3">
-                              @if (!string.IsNullOrWhiteSpace(Model.DisplayTranslation))
-                              {
-                                   <pre style="white-space: pre-wrap; word-wrap: break-word; font-family: 'Segoe UI', sans-serif; font-size: 1.1rem; line-height: 1.6;">@Model.DisplayTranslation</pre>
-                              }
-                              else
-                              {
-                                   <div class="text-center text-muted mt-5">
-                                        <p>Select a language above and click <strong>Translate Full</strong></p>
-                                        <p>- OR -</p>
-                                        <p>Click individual words on the left for instant lookup.</p>
-                                   </div>
-                              }
-                         </div>
-                    </div>
-               </div>
-          </div>
-
-          <div id="word-popover">
-               <div class="container position-relative">
-                    <button type="button" id="word-popover-close" class="btn-close position-absolute top-0 end-0" aria-label="Close"></button>
-                    <div class="row">
-                         <div class="col-md-12">
-                              <small class="text-muted text-uppercase fw-bold">Dictionary Lookup</small>
-                              <h2 id="popover-original-word" class="display-6 fw-bold text-primary">Word</h2>
-                              <hr style="width: 50px; border: 2px solid #0d6efd; opacity: 1;" />
-                              <p id="popover-translation" class="fs-3 mb-3">Translation...</p>
-
-                              <button class="btn btn-outline-success btn-sm rounded-pill px-3">
-                                   <i class="bi bi-bookmark-plus"></i> Save to Vocabulary
-                              </button>
-                         </div>
-                    </div>
-               </div>
-          </div>
-     }
-
-     @section Scripts {
-          <script>
-               document.addEventListener('DOMContentLoaded', function () {
-                   const textContainer = document.getElementById('original-text-container');
-                   const popover = document.getElementById('word-popover');
-                   const popoverOriginal = document.getElementById('popover-original-word');
-                   const popoverTranslation = document.getElementById('popover-translation');
-                   const popoverClose = document.getElementById('word-popover-close');
-                   const langSelect = document.getElementById('TargetLanguageSelect');
-
-                   if (textContainer) {
-                       // Get the raw text from the <pre> tag
-                       const preTag = textContainer.querySelector('pre');
-                       const rawText = preTag.textContent || '';
-
-                       // Split text into words (including punctuation)
-                       // This regex splits by space or newline
-                       const words = rawText.split(/(\s+)/);
-
-                       // Create new content with <span> tags
-                       const newContent = words.map(word => {
-                           // Don't wrap whitespace
-                           if (word.trim().length === 0) {
-                               return word;
-                           }
-                           // Create a span for clickable words
-                           return `<span class="word-lookup">${word}</span>`;
-                       }).join('');
-
-                       // Replace the <pre> tag's content
-                       preTag.innerHTML = newContent;
-
-                       // Add click listener to all new spans
-                       textContainer.addEventListener('click', function(e) {
-                           if (e.target.classList.contains('word-lookup')) {
-                               handleWordClick(e.target);
-                           }
-                       });
-                   }
-
-                   // Handle the click event on a word
-                   async function handleWordClick(wordElement) {
-                       const word = wordElement.textContent;
-                       // Remove punctuation for the API call
-                       const cleanWord = word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
-                       if (!cleanWord) return;
-
-                       const language = langSelect.value; // Get current language
-
-                       // Show the popover   // UI Updates
-                       popoverOriginal.textContent = cleanWord;
-                       popoverTranslation.innerHTML = '<span class="spinner-border spinner-border-sm text-secondary"></span>';
-                       popover.classList.add('show');
-                       
-                       try {
-                            // Call the new Handler
-                            const response = await fetch(`?handler=WordLookup&word=${cleanWord}&language=${language}`);
-                            if (response.ok) {
-                                 const data = await response.json();
-                                 popoverTranslation.textContent = data.translation;
-                            } else {
-                                 popoverTranslation.textContent = "Translation unavailable";
-                            }
-                            } catch (error) {
-                                 console.error(error);
-                                 popoverTranslation.textContent = "Error";
-                            }
-                       }
-
-                   // Close the popover
-                   if (popoverClose) {
-                        popoverClose.addEventListener('click', () => popover.classList.remove('show'));
-                   }
-               });
-          </script>
-     }
+            <div class="col-md-6">
+                <h4>Translation</h4>
+                <div class="article-content p-3 border rounded bg-white" style="min-height: 200px;">
+                    @if (!string.IsNullOrWhiteSpace(Model.DisplayTranslation))
+                    {
+                        <pre style="white-space: pre-wrap; word-wrap: break-word; font-family: inherit; font-size: inherit;">@Model.DisplayTranslation</pre>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Select a language and click "Translate" to begin.</p>
+                    }
+                </div>
+            </div>
+            
+        </div>
+    </div>
+}
+else
+{
+    <h3 class="text-danger">Article Not Found</h3>
+    <p>We were unable to load the article specified.</p>
+    <a asp-page="/Index">Return to Home</a>
+}
+}
 </body>
 </html>

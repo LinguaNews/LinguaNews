@@ -1,129 +1,141 @@
-using LinguaNews.Data;
+using LinguaNews.Data; // <-- Assumes LinguaNewsDbContext is in this namespace
 using LinguaNews.Models;
-using LinguaNews.Services;
+using LinguaNews.Models.LinguaNews;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace LinguaNews.Pages
 {
-	public class ArticleModel : PageModel
-	{
-		private readonly LinguaNewsDbContext _db;
-		private readonly IArticleExtractionService _extractionService;
-		private readonly ITranslationService _translationService;
+    public class ArticleModel : PageModel
+    {
+        // --- CHANGE 1: The type of your DbContext field ---
+        private readonly LinguaNewsDbContext _db;
+        private readonly IArticleExtractionService _extractionService;
+        private readonly ITranslationService _translationService;
 
-		// Constructor
-		public ArticleModel(
-		    LinguaNewsDbContext db,
-		    IArticleExtractionService extractionService,
-		    ITranslationService translationService)
-		{
-			_db = db;
-			_extractionService = extractionService;
-			_translationService = translationService;
-		}
+        // --- CHANGE 2: The type in the constructor's parameter ---
+        public ArticleModel(
+            LinguaNewsDbContext db, // <-- Changed from ApplicationDbContext
+            IArticleExtractionService extractionService,
+            ITranslationService translationService)
+        {
+            _db = db; // <-- Assign the correct DbContext
+            _extractionService = extractionService;
+            _translationService = translationService;
+        }
 
-		// Properties
-		[BindProperty(SupportsGet = true)]
-		public new string Url { get; set; } = string.Empty;
+        // --- Properties to hold data for the View (No changes) ---
 
-		[BindProperty]
-		public string TargetLanguage { get; set; } = "ES";
+        [BindProperty(SupportsGet = true)]
+        public string Url { get; set; } = string.Empty;
 
-		public ArticleSnapshot? DisplayArticle { get; set; }
-		public string? DisplayTranslation { get; set; }
+        [BindProperty]
+        public string TargetLanguage { get; set; } = "ES";
 
-		// Handler: Load the page
-		public async Task<IActionResult> OnGetAsync()
-		{
-			if (string.IsNullOrWhiteSpace(Url)) return NotFound("No article URL provided.");
+        public ArticleSnapshot? DisplayArticle { get; set; }
 
-			// 1. Check DB
-			var snapshot = await _db.ArticleSnapshots
-			    .Include(s => s.Translations)
-			    .FirstOrDefaultAsync(a => a.OriginalUrl == Url);
+        public string? DisplayTranslation { get; set; }
 
-			// 2. If missing, fetch from web
-			if (snapshot == null)
-			{
-				var (title, text) = await _extractionService.ExtractAsync(Url);
 
-				if (string.IsNullOrWhiteSpace(text)) return NotFound("Could not extract article text.");
+        // --- Page Handlers (No changes needed) ---
+        // The logic was already correct. It uses the _db variable,
+        // which is now correctly of type LinguaNewsDbContext.
 
-				snapshot = new ArticleSnapshot
-				{
-					OriginalUrl = Url,
-					Title = title,
-					OriginalText = text,
-					FetchedAt = DateTime.UtcNow
-				};
+        public async Task<IActionResult> OnGetAsync()
+        {
+            if (string.IsNullOrWhiteSpace(Url))
+            {
+                return NotFound("No article URL provided.");
+            }
 
-				_db.ArticleSnapshots.Add(snapshot);
-				await _db.SaveChangesAsync();
-			}
+            // 1. Try to find the article in our database
+            var snapshot = await _db.ArticleSnapshots
+                .Include(s => s.Translations) // <-- Correctly includes the Translation model
+                .FirstOrDefaultAsync(a => a.OriginalUrl == Url);
 
-			DisplayArticle = snapshot;
-			return Page();
-		}
+            if (snapshot == null)
+            {
+                // 2. Fetch it
+                var (title, text) = await _extractionService.ExtractAsync(Url);
 
-		// Handler: Full Page Translation
-		public async Task<IActionResult> OnPostAsync()
-		{
-			if (string.IsNullOrWhiteSpace(Url)) return NotFound();
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    return NotFound("Could not extract article text.");
+                }
 
-			var snapshot = await _db.ArticleSnapshots
-			    .Include(s => s.Translations)
-			    .FirstOrDefaultAsync(a => a.OriginalUrl == Url);
+                // Create the new snapshot
+                snapshot = new ArticleSnapshot
+                {
+                    OriginalUrl = Url,
+                    Title = title,
+                    OriginalText = text,
+                    FetchedAt = DateTime.UtcNow
+                };
 
-			if (snapshot == null) return RedirectToPage("/Index");
+                // 3. Save to database
+                _db.ArticleSnapshots.Add(snapshot);
+                await _db.SaveChangesAsync();
+            }
 
-			DisplayArticle = snapshot;
+            // 4. Set the property for the view
+            DisplayArticle = snapshot;
+            return Page();
+        }
 
-			// Check Cache
-			var existingTranslation = snapshot.Translations
-			    .FirstOrDefault(t => t.LanguageCode == TargetLanguage);
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (string.IsNullOrWhiteSpace(Url))
+            {
+                return NotFound();
+            }
 
-			if (existingTranslation != null)
-			{
-				DisplayTranslation = existingTranslation.TranslatedText;
-			}
-			else
-			{
-				// Call Service
-				var translatedText = await _translationService.TranslateAsync(
-				    snapshot.OriginalText,
-				    TargetLanguage
-				);
+            // 1. Load the article
+            var snapshot = await _db.ArticleSnapshots
+                //.Include(s => s.Translations)//
+                .FirstOrDefaultAsync(a => a.OriginalUrl == Url);
 
-				// Save Result
-				var newTranslation = new Translation
-				{
-					LanguageCode = TargetLanguage,
-					TranslatedText = translatedText,
-					ArticleSnapshotId = snapshot.Id
-				};
+            if (snapshot == null)
+            {
+                return RedirectToPage("/Index");
+            }
 
-				_db.Translations.Add(newTranslation);
-				await _db.SaveChangesAsync();
+            DisplayArticle = snapshot;
 
-				DisplayTranslation = translatedText;
-			}
+            // 2. Check for existing translation
+            var existingTranslation = snapshot.Translations
+                .FirstOrDefault(t => t.LanguageCode == TargetLanguage);
 
-			return Page();
-		}
+            if (existingTranslation != null)
+            {
+                // 3. Cache Hit
+                DisplayTranslation = existingTranslation.TranslatedText;
+            }
+            else
+            {
+                // 4. Cache Miss! Call API
+                var translatedText = await _translationService.TranslateAsync(
+                    snapshot.OriginalText,
+                    TargetLanguage
+                );
 
-		// Handler: Single Word Lookup (AJAX)
-		public async Task<IActionResult> OnGetWordLookupAsync(string word, string language)
-		{
-			if (string.IsNullOrWhiteSpace(word) || string.IsNullOrWhiteSpace(language))
-			{
-				return BadRequest("Word and language are required.");
-			}
+                // 5. Create and save the new Translation model
+                var newTranslation = new Translation
+                {
+                    LanguageCode = TargetLanguage,
+                    TranslatedText = translatedText,
+                    ArticleSnapshotId = snapshot.Id
+                };
 
-			var translatedWord = await _translationService.TranslateAsync(word.Trim(), language);
+                _db.Translations.Add(newTranslation); // <-- Correctly adds to the Translations DbSet
+                await _db.SaveChangesAsync();
 
-			return new JsonResult(new { translation = translatedWord });
-		}
-	}
+                // 6. Display the new translation
+                DisplayTranslation = translatedText;
+            }
+
+            return Page();
+        }
+    }
 }

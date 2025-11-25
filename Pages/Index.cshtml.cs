@@ -2,44 +2,51 @@ using LinguaNews.Models;
 using LinguaNews.Models.LinguaNews;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Web;
-using LinguaNews.Models;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Web;
 
 namespace LinguaNews.Pages
 {
 	public class IndexModel : PageModel
 	{
+		// Use IHttpClientFactory (injected) instead of a static client
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly ILogger<IndexModel> _logger;
         private readonly IConfiguration _config;
         
 
-		private const string ApiKey = "pub_731b19e405ac490a9761d29863e3e748";
-		private const string ApiBaseUrl = "https://newsdata.io/api/1/archive";
-
-		public IndexModel(IHttpClientFactory httpClientFactory, ILogger<IndexModel> logger)
+        // Inject services in the constructor, can be relocated to subpage later
+        public IndexModel(IHttpClientFactory httpClientFactory, ILogger<IndexModel> logger, IConfiguration config)
 		{
 			_httpClientFactory = httpClientFactory;
 			_logger = logger;
             _config = config;
         }
 
+		// Add properties to bind to the search form
+
+		// This binds to the "name='SearchTerm'" input in the .cshtml file.
+		// SupportsGet = true is required for the form's "get" method.
 		[BindProperty(SupportsGet = true)]
 		public string? SearchTerm { get; set; }
 
+		// This binds to the "name='Language'" dropdown.
+		// It defaults to "en" (English) if nothing is selected.
 		[BindProperty(SupportsGet = true)]
-		public string Language { get; set; } = "EN";
+		public string Language { get; set; } = "en";
 
+		// It holds the final list of articles for the view to display.
 		public List<ArticleViewModel> Articles { get; set; } = [];
 
+
+		// Change OnGet to be Asynchronous
 		public async Task OnGetAsync()
 		{
-			var currentLanguage = Language;
+			// This replaces your LoadMockArticles()
 
 			var client = _httpClientFactory.CreateClient();
-			var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
 
             var apiKey = _config["NewsData:ApiKey"];
             var apiBaseUrl = _config["NewsData:BaseUrl"];
@@ -65,25 +72,29 @@ namespace LinguaNews.Pages
 
 			try
 			{
+				// Call the API
 				var response = await client.GetAsync(apiUrl);
 
 				if (response.IsSuccessStatusCode)
 				{
+					// Deserialize the JSON Response
 					var apiResponse = await response.Content.ReadFromJsonAsync<NewsDataResponse>();
 
-					if (apiResponse?.Results != null)
+					if (apiResponse != null && apiResponse.Status == "success" && apiResponse.Results != null)
 					{
+						// Map the API data to our ArticleViewModel
 						Articles = apiResponse.Results
-						  .Where(item => !string.IsNullOrEmpty(item.Title) && !string.IsNullOrEmpty(item.Description))
-						  .Select(static item => new ArticleViewModel
-						  {
-							  Title = item.Title ?? "No Title",
-							  Description = item.Description ?? "No Description",
-							  Url = item.Link ?? string.Empty,
-							  UrlToImage = item.ImageUrl ?? string.Empty,
-							  SourceName = item.SourceId ?? "Unknown Source"
-						  })
-						  .ToList();
+						    // Filter out articles with no title/description
+						    .Where(item => !string.IsNullOrEmpty(item.Title) && !string.IsNullOrEmpty(item.Description))
+						    .Select(static item => new ArticleViewModel
+						    {
+							    Title = item.Title ?? "No Title",
+							    Description = item.Description ?? "No Description",
+							    Url = item.Link, // Uses the "link" property from the API
+							    UrlToImage = item.ImageUrl, // Uses the "image_url" property
+							    SourceName = item.SourceId ?? "Unknown Source" // Uses "source_id"
+						    })
+						    .ToList();
 					}
 				}
 				else
@@ -96,5 +107,83 @@ namespace LinguaNews.Pages
 				_logger.LogError(ex, "Error fetching articles from NewsData.io");
 			}
 		}
+
+		// --- This helper method is no longer needed, as we're calling the real API ---
+		/*
+using microsoft.aspnetcore.mvc;
+using microsoft.aspnetcore.mvc.razorpages;
+using system.text.json;
+using system.text.json.serialization;
+using system.web;
+using linguanews.models.linguanews;
+
+
+namespace linguanews.pages
+{
+    public class indexmodel : pagemodel
+    {
+        static readonly httpclient client = new httpclient();
+        // this property will hold our list of articles for the view to display
+        [bindproperty(supportsget = true)]
+        public list<articleviewmodel> articles { get; set; } = [];
+
+        // this is where you will eventually call the newsapi.
+        public void onget()
+        {
+            var loadarticledata = client.getasync("https://newsdata.io/api/1/archive?apikey=pub_731b19e405ac490a9761d29863e3e748&q=example&language=en&from_date=2025-11-09&to_date=2025-11-16");
+            articles = loadmockarticles();
+        }
+
+        /// <summary>
+        /// a private helper method to create placeholder data.
+        /// later, you will replace this with a real api call.
+        /// </summary>
+        private list<articleviewmodel> loadmockarticles()
+        {
+            return new list<articleviewmodel>
+            {
+                new articleviewmodel
+                {
+                    title = "major breakthrough in ai language translation",
+                    description = "a new deep-learning model has shown unprecedented accuracy in real-time translation, paving the way for tools just like linguanews.",
+                    url = "https://example.com/article-1", // placeholder link
+                    urltoimage = "https://via.placeholder.com/350x200.png?text=ai+translation", // placeholder image
+                    sourcename = "tech news daily"
+                },
+                new articleviewmodel
+                {
+                    title = "global markets respond to new policies",
+                    description = "stock markets around the world saw significant movement today after the announcement of new international trade agreements.",
+                    url = "https://example.com/article-2",
+                    urltoimage = "https://via.placeholder.com/350x200.png?text=global+markets",
+                    sourcename = "world finance times"
+                },
+                new articleviewmodel
+                {
+                    title = "the rise of polyglot programming",
+                    description = "developers are increasingly learning multiple programming languages, but what about spoken languages? we explore the trend.",
+                    url = "https://example.com/article-3",
+                    urltoimage = "https://via.placeholder.com/350x200.png?text=programming",
+                    sourcename = "developer weekly"
+                }
+            };
+        }
+    }
+
+    /// <summary>
+    /// this is a "view model" representing a single article.
+    /// it contains only the data we need to display on the page.
+    /// you would typically populate this from the full model you get from newsapi.
+    /// </summary>
+    public class articleviewmodel
+    {
+        public string title { get; set; } = string.empty;
+        public string description { get; set; } = string.empty;
+        public string url { get; set; } = string.empty;
+        public string urltoimage { get; set; } = string.empty;
+        public string sourcename { get; set; } = string.empty;
+    }
+}
+*/
 	}
 }
