@@ -16,7 +16,7 @@ namespace LinguaNews.Data
 
         // These properties will become your tables in the database
         public DbSet<ArticleSnapshot> ArticleSnapshots { get; set; }
-        public DbSet<Translation> Translations { get; set; }
+        //public DbSet<Translation> Translations { get; set; }
 
 		public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
 		{

@@ -2,7 +2,7 @@
 
 namespace LinguaNews.Models
 {
-    // It contains only the data we need to display on the page.
+    // It contains only the data we need to display on the INDEX page.
     public class ArticleViewModel
     {
         public string Title { get; set; } = string.Empty;

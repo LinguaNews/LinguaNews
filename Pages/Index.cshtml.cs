@@ -1,4 +1,5 @@
 using LinguaNews.Models;
+using LinguaNews.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Text.Json;
@@ -8,21 +9,20 @@ namespace LinguaNews.Pages
 {
 	public class IndexModel : PageModel
 	{
-		private readonly IHttpClientFactory _httpClientFactory;
-		private readonly ILogger<IndexModel> _logger;
-		private readonly IConfiguration _config;
-
-		public IndexModel(
-		    IHttpClientFactory httpClientFactory,
-		    ILogger<IndexModel> logger,
-		    IConfiguration config)
+        //private readonly IHttpClientFactory _httpClientFactory; Moved to INewsDataIngestService per CC's push
+        private readonly INewsDataIngestService _newsService;
+        private readonly ILogger<IndexModel> _logger;
+		
+        public IndexModel(
+            INewsDataIngestService newsService,
+		    ILogger<IndexModel> logger)
 		{
-			_httpClientFactory = httpClientFactory;
-			_logger = logger;
-			_config = config;
+			//_httpClientFactory = httpClientFactory;] 
+			_newsService = newsService;
+            _logger = logger;
 		}
 
-		[BindProperty(SupportsGet = true)]
+		[BindProperty(SupportsGet = true, Name = "q")]
 		public string? SearchTerm { get; set; }
 
 		[BindProperty(SupportsGet = true)]
@@ -34,7 +34,7 @@ namespace LinguaNews.Pages
 
 		public async Task OnGetAsync()
 		{
-			var client = _httpClientFactory.CreateClient();
+            /*OLD METHOD: HTTPCLIENT IN INDEX var client = _httpClientFactory.CreateClient();
 
 			var apiKey = _config["NewsData:ApiKey"];
 			var apiBaseUrl = _config["NewsData:BaseUrl"];
@@ -66,10 +66,9 @@ namespace LinguaNews.Pages
 			    : "language learning";
 
 			var builder = new UriBuilder(apiBaseUrl) { Query = query.ToString() };
-			string apiUrl = builder.ToString();
-
-			try
-			{
+			string apiUrl = builder.ToString(); 
+            try
+            {
 				var response = await client.GetAsync(apiUrl);
 
 				if (!response.IsSuccessStatusCode)
@@ -102,8 +101,46 @@ namespace LinguaNews.Pages
 					    UrlToImage = item.ImageUrl ?? string.Empty,
 					    SourceName = item.SourceId ?? "Unknown Source"
 				    })
-				    .ToList();
-			}
+				    .ToList(); b*/
+            // NEW METHOD: USING INewsDataIngestService
+            if (string.IsNullOrWhiteSpace(SearchTerm))
+            {
+                Articles = new List<ArticleViewModel>();
+                return;
+            }
+				try
+				 {
+					 // We pass the SearchTerm and Language directly from the form properties
+					 var rawArticles = await _newsService.GetArticlesAsync(SearchTerm, Language, CancellationToken.None);
+
+					 if (rawArticles == null || !rawArticles.Any())
+                {
+						ErrorMessage = "No articles found. Try adjusting your search.";
+							return;
+                }
+
+                // Map Data -> ViewModel (The "Controller" Logic)
+                Articles = rawArticles
+                    .Where(a => !string.IsNullOrEmpty(a.Title)) // Basic filter
+                    .Select(a => new ArticleViewModel
+                    {
+                        Title = a.Title ?? "No Title",
+
+                        // Handle the description fallback if content is not available
+                        Description = !string.IsNullOrWhiteSpace(a.Description)
+                                      ? a.Description
+                                      : "No description available.",
+						Url = a.Link ?? "#",
+
+                        // Use a placeholder if image is missing (place in images folder)
+                        UrlToImage = !string.IsNullOrWhiteSpace(a.ImageUrl)
+                                     ? a.ImageUrl
+                                     : "https://www.google.com/url?sa=E&source=gmail&q=via.placeholder.com",
+
+                        SourceName = a.SourceId ?? "Unknown"
+                    })
+                    .ToList();
+            }
 			catch (HttpRequestException ex)
 			{
 				_logger.LogError(ex, "Network error fetching articles from NewsData.io");
