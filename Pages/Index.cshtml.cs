@@ -11,16 +11,17 @@ namespace LinguaNews.Pages
 {
 	public class IndexModel : PageModel
 	{
-        //private readonly IHttpClientFactory _httpClientFactory; Moved to INewsDataIngestService per CC's push
         private readonly INewsDataIngestService _newsService;
+        private readonly LinguaNewsDbContext _db;
         private readonly ILogger<IndexModel> _logger;
 		
         public IndexModel(
             INewsDataIngestService newsService,
+            LinguaNewsDbContext db,
 		    ILogger<IndexModel> logger)
-		{
-			//_httpClientFactory = httpClientFactory;] 
-			_newsService = newsService;
+        {
+            _newsService = newsService;
+            _db = db;
             _logger = logger;
 		}
 
@@ -31,11 +32,23 @@ namespace LinguaNews.Pages
 		public string Language { get; set; } = "EN";
 
 		public List<ArticleViewModel> Articles { get; set; } = new();
-
-		public string? ErrorMessage { get; set; }
+        public List<ArticleSnapshot> SavedArticles { get; set; } = new();
+        public string? ErrorMessage { get; set; }
 
 		public async Task OnGetAsync()
 		{
+            //  LOAD HISTORY FROM DB
+            try
+            {
+                SavedArticles = await _db.ArticleSnapshots
+                    .OrderByDescending(a => a.FetchedAt) // Newest first
+                    .Take(4) // Limit to 4 to keep UI clean
+                    .ToListAsync();
+            }
+            catch
+            {
+                // If DB fails (migration issue), ignore it so page still loads
+            }
             if (string.IsNullOrWhiteSpace(SearchTerm))
             {
                 Articles = new List<ArticleViewModel>();

@@ -8,7 +8,7 @@
      <h1 class="display-4">Article Feed</h1>
      <p>Real-world news articles for language immersion.</p>
 </div>
-
+<!-- Search & Filtering-->
 <form method="get" class="mb-4">
      <div class="row">
           <div class="col-md-8">
@@ -36,7 +36,37 @@
           </div>
      </div>
 </form>
+<!-- Recently Viewed Articles-->
+@if (Model.SavedArticles != null && Model.SavedArticles.Any())
+{
+    <div class="mb-5 p-4 bg-light rounded-3 shadow-sm border">
+        <h5 class="text-secondary border-bottom pb-2 mb-3">
+            <i class="bi bi-clock-history me-2"></i>Recently Viewed
+        </h5>
 
+        <div class="row">
+            @foreach (var saved in Model.SavedArticles)
+            {
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100 border-0 shadow-sm hover-card">
+                        <div class="card-body">
+                            <h6 class="card-title text-truncate small fw-bold" title="@saved.Title">
+                                @saved.Title
+                            </h6>
+                            <p class="card-text small text-muted mb-2">@saved.SourceName</p>
+
+                            <a asp-page="/ArticleSnapshot"
+                               asp-route-ArticleUrl="@saved.ArticleUrl"
+                               class="stretched-link text-decoration-none small text-primary fw-bold">
+                                Open Again &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
 <hr />
 
 @* Error Message Display *@
