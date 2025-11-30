@@ -41,6 +41,8 @@ namespace LinguaNews.Pages
 
         public ArticleSnapshot? Snapshot { get; set; }
 
+        public Dictionary<string, string> SentenceMap { get; set; } = []; // Maps original sentences to translated sentences
+
         public async Task<IActionResult> OnGetAsync()
         {
             if (string.IsNullOrWhiteSpace(ArticleUrl)) return RedirectToPage("/Index");

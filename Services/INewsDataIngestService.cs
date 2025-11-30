@@ -9,7 +9,10 @@ namespace LinguaNews.Services
 {
     public interface INewsDataIngestService
     {
-        Task<IReadOnlyList<NewsDataArticle>> GetArticlesAsync(string? q, string language, CancellationToken ct = default);
+        Task<IReadOnlyList<NewsDataArticle>> GetArticlesAsync(
+            string? q,
+            string language,
+            CancellationToken ct = default);
     }
 
     public class NewsDataIngestService : INewsDataIngestService
@@ -23,7 +26,10 @@ namespace LinguaNews.Services
             _options = options.Value;
         }
 
-        public async Task<IReadOnlyList<NewsDataArticle>> GetArticlesAsync(string? query, string language, CancellationToken ct = default)
+        public async Task<IReadOnlyList<NewsDataArticle>> GetArticlesAsync(
+            string? query,
+            string language,
+            CancellationToken ct = default)
         {
             var builder = new UriBuilder(_options.BaseUrl);
             var q = HttpUtility.ParseQueryString(builder.Query);
