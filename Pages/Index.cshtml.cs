@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace LinguaNews.Pages
 {
@@ -51,7 +50,7 @@ namespace LinguaNews.Pages
             }
             catch
             {
-                // If DB fails (migration issue), ignore it so page still loads
+                // If DB fails (migration issue), ignore it so page still loads LOGGING CAN BE ADDED HERE
             }
             if (string.IsNullOrWhiteSpace(SearchTerm))
             {

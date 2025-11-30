@@ -1,6 +1,7 @@
 using LinguaNews.Options;
 using LinguaNews.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +10,11 @@ builder.Services.AddRazorPages();
 builder.Services.AddHttpClient<INewsDataIngestService, NewsDataIngestService>(); // Due to Service registration, need specific build call for service class
 builder.Services.Configure<NewsDataOptions>(
     builder.Configuration.GetSection("NewsData")); // Configuration for external service class
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+.AddJsonOptions(options =>
+ {
+     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+ });
 builder.Services.AddMemoryCache();
 builder.Services.AddEndpointsApiExplorer();
 

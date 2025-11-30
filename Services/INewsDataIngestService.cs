@@ -59,11 +59,6 @@ namespace LinguaNews.Services
             return apiResponse?.Results ?? new List<NewsDataArticle>();
 
         }
-
-        /*Task<IReadOnlyList<NewsDataArticle>> INewsDataIngestService.GetArticlesAsync(string? query, CancellationToken ct)
-        {
-            throw new NotImplementedException();
-        }*/
     }
 }
 
