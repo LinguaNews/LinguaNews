@@ -22,10 +22,9 @@ namespace LinguaNews.Models
         [MaxLength(2048)]
         public string ImageUrl { get; set; } = string.Empty;
 
-        // --- NEW: Store the description separately ---
         public string Description { get; set; } = string.Empty;
 
-        // The full body (might be empty on free tier)
+        // The full body (not used in testing / free tier)
         public string Content { get; set; } = string.Empty;
 
         public DateTime FetchedAt { get; set; } = DateTime.UtcNow;
@@ -41,9 +40,6 @@ namespace LinguaNews.Models
         // View Helpers
         [NotMapped]
         public string DisplayTranslation { get; set; } = string.Empty;
-
-        [NotMapped]
-        public string TargetLanguage { get; set; } = "ES";
     }
 }
 

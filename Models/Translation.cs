@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace LinguaNews.Models
 {
@@ -12,8 +13,7 @@ namespace LinguaNews.Models
         [Required]
         [MaxLength(5)] 
         public string LanguageCode { get; set; } = string.Empty;
-
-        // The expensive payload. Storing this saves API calls ($$$) and Time.
+        [JsonPropertyName("text")]
         public string TranslatedText { get; set; } = string.Empty;
 
         // Foreign Key

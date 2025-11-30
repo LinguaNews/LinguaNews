@@ -69,7 +69,10 @@ namespace LinguaNews.Pages
 
                 try
                 {
-                    var rawArticles = await _newsService.GetArticlesAsync(SearchTerm, Language, CancellationToken.None);
+                    var rawArticles = await _newsService.GetArticlesAsync(
+                        SearchTerm,
+                        Language ?? "en",
+                        CancellationToken.None);
 
                     if (rawArticles == null || !rawArticles.Any())
                     {

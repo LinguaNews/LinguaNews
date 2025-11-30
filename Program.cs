@@ -5,11 +5,18 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 builder.Services.AddRazorPages();
+// Registering NewsData Ingest Service
 builder.Services.AddHttpClient<INewsDataIngestService, NewsDataIngestService>(); // Due to Service registration, need specific build call for service class
 builder.Services.Configure<NewsDataOptions>(
     builder.Configuration.GetSection("NewsData")); // Configuration for external service class
+// Registering Translation Service (DeepL)
+builder.Services.AddHttpClient<ITranslationService, DeepLTranslationService>();
+builder.Services.Configure<DeepLOptions>(
+    builder.Configuration.GetSection("DeepL"));
+
+// Adding Controllers with JSON options to handle reference cycles (how to read nested JSON!!)
 builder.Services.AddControllers()
 .AddJsonOptions(options =>
  {

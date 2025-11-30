@@ -1,4 +1,5 @@
 ﻿using LinguaNews.Options;
+using LinguaNews.Models;  
 using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
 using System.Net.Http.Json;
@@ -8,7 +9,9 @@ namespace LinguaNews.Services
 {
     public interface ITranslationService
     {
-        Task<string> TranslateAsync(string text, string targetLang);
+        Task<string> TranslateAsync(
+            string text,
+            string targetLang);
     }
 }
 
@@ -51,24 +54,12 @@ namespace LinguaNews.Services
                     return $"DeepL Error: {response.StatusCode}";
 
                 var result = await response.Content.ReadFromJsonAsync<DeepLResponse>();
-                return result?.Translations?.FirstOrDefault()?.Text ?? "Error: Empty Response";
+                return result?.Translations?.FirstOrDefault()?.TranslatedText ?? "Error: Empty Response";
             }
             catch (Exception ex)
             {
                 return $"System Error: {ex.Message}";
             }
-        }
-
-        // Helper classes for JSON
-        private class DeepLResponse
-        {
-            [JsonPropertyName("translations")]
-            public List<DeepLItem>? Translations { get; set; }
-        }
-        private class DeepLItem
-        {
-            [JsonPropertyName("text")]
-            public string? Text { get; set; }
         }
     }
 }
