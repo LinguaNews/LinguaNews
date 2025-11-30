@@ -9,8 +9,8 @@ builder.Services.AddRazorPages();
 builder.Services.AddHttpClient<INewsDataIngestService, NewsDataIngestService>(); // Due to Service registration, need specific build call for service class
 builder.Services.Configure<NewsDataOptions>(
     builder.Configuration.GetSection("NewsData")); // Configuration for external service class
-// Long story short, we are injecting all of our ingestion / API call / filtering logic via this Service class
 builder.Services.AddControllers();
+builder.Services.AddMemoryCache();
 builder.Services.AddEndpointsApiExplorer();
 
 // Database context registration

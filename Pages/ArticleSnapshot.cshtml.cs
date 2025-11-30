@@ -50,42 +50,10 @@ namespace LinguaNews.Pages
                 .Include(a => a.Translations)
                 .FirstOrDefaultAsync(a => a.ArticleUrl == ArticleUrl);
 
-            if (existingSnapshot == null)
-            {
-                // Prefer the data passed from Index page!
-                // This solves the "Free Tier" problem because we use the data we already found. [NOTE: AI GENERATED CODE]
-                
-                string finalTitle = IncomingTitle ?? "Unknown Title";
-                string finalContent = string.Empty;
-                string finalDesc = IncomingDescription ?? string.Empty;
-
-                // Only call the scraper if we have absolutely no data, THIS IS A MOCK OF AN ACTUAL SCRAPER CALL
-                if (string.IsNullOrWhiteSpace(IncomingDescription))
-                {
-                     var extracted = await _ingestService.ExtractAsync(ArticleUrl);
-                     finalTitle = extracted.Title;
-                     finalContent = extracted.Content;
-                } 
-
-                existingSnapshot = new ArticleSnapshot
-                {
-                    ArticleUrl = ArticleUrl,
-                    Title = finalTitle,
-                    Description = finalDesc,       // Save the description
-                    Content = finalContent,        // Might be empty due to free tier
-                    SourceName = IncomingSource ?? "Unknown",
-                    ImageUrl = IncomingImage ?? string.Empty,
-                    FetchedAt = DateTime.UtcNow
-                }; // [END AI GENERATED CODE]
-
-                _db.ArticleSnapshots.Add(existingSnapshot);
-                await _db.SaveChangesAsync();
-            }
-
+           
             Snapshot = existingSnapshot;
             return Page();
         }
-
         public async Task<IActionResult> OnPostAsync()
         {
             if (string.IsNullOrWhiteSpace(ArticleUrl)) return RedirectToPage("/Index");

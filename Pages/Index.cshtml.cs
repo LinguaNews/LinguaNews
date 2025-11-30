@@ -1,11 +1,12 @@
+using LinguaNews.Data; 
 using LinguaNews.Models;
 using LinguaNews.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using LinguaNews.Data; 
-using System.Web;
+using Microsoft.Extensions.Caching.Memory;
+using System.Text.Json;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LinguaNews.Pages
 {
@@ -13,15 +14,18 @@ namespace LinguaNews.Pages
 	{
         private readonly INewsDataIngestService _newsService;
         private readonly LinguaNewsDbContext _db;
+        private readonly IMemoryCache _cache;
         private readonly ILogger<IndexModel> _logger;
 		
         public IndexModel(
             INewsDataIngestService newsService,
             LinguaNewsDbContext db,
+            IMemoryCache cache,
 		    ILogger<IndexModel> logger)
         {
             _newsService = newsService;
             _db = db;
+            _cache = cache;
             _logger = logger;
 		}
 
@@ -29,7 +33,7 @@ namespace LinguaNews.Pages
 		public string? SearchTerm { get; set; }
 
 		[BindProperty(SupportsGet = true)]
-		public string Language { get; set; } = "EN";
+		public string? Language { get; set; }
 
 		public List<ArticleViewModel> Articles { get; set; } = new();
         public List<ArticleSnapshot> SavedArticles { get; set; } = new();
