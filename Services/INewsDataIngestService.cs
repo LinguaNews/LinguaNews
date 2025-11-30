@@ -10,6 +10,18 @@ namespace LinguaNews.Services
     public interface INewsDataIngestService
     {
         Task<IReadOnlyList<NewsDataArticle>>GetArticlesAsync(string? q, string language, CancellationToken ct = default);
+
+        public async Task<(string Title, string Content)> ExtractAsync(string url) // [NOTE: AI GENERATED CODE]
+        {
+            // This is a stub implementation that returns placeholder text, to be replaced with real extraction logic as a fallback method
+            // It guarantees NO extraneous text because we are controlling the input.
+            await Task.Delay(200);
+
+            return (
+                Title: "Content Not Available (Free Tier)",
+                Content: "We could not retrieve the full article content because the NewsData.io Free Tier does not provide it, and scraping the URL requires complex legal and technical handling. This placeholder text allows the translation feature to be demonstrated successfully."
+            );
+        }
     }
 
     public class NewsDataIngestService : INewsDataIngestService

@@ -69,11 +69,15 @@
                               <h5 class="card-title">@article.Title</h5>
                               <p class="card-text">@article.Description</p>
                               <small class="text-muted mb-2">@article.SourceName</small>
-
-                              <a asp-page="/Article" asp-route-url="@article.Url"
-                                 class="btn btn-outline-primary mt-auto">
-                                   Read & Translate
-                              </a>
+                        <a asp-page="/ArticleSnapshot"
+                           asp-route-ArticleUrl="@article.Url"
+                           asp-route-IncomingTitle="@article.Title"
+                           asp-route-IncomingDescription="@article.Description"
+                           asp-route-IncomingSource="@article.SourceName"
+                           asp-route-IncomingImage="@article.UrlToImage"
+                           class="btn btn-outline-primary mt-auto">
+                            Read & Translate
+                        </a>
                          </div>
                     </div>
                </div>

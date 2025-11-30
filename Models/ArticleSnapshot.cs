@@ -3,39 +3,47 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LinguaNews.Models
 {
-    // This class maps directly to a Database Table for caching
+    [Table("ArticleSnapshots")]
     public class ArticleSnapshot
     {
         [Key]
         public int Id { get; set; }
 
         [Required]
-        public string OriginalUrl { get; set; } = string.Empty;
+        [MaxLength(2048)]
+        public string ArticleUrl { get; set; } = string.Empty;
 
+        [MaxLength(500)]
         public string Title { get; set; } = string.Empty;
 
-        public string Author { get; set; } = string.Empty;
-
+        [MaxLength(255)]
         public string SourceName { get; set; } = string.Empty;
 
-        [Required]
+        [MaxLength(2048)]
+        public string ImageUrl { get; set; } = string.Empty;
+
+        // --- NEW: Store the description separately ---
+        public string Description { get; set; } = string.Empty;
+
+        // The full body (might be empty on free tier)
         public string Content { get; set; } = string.Empty;
 
         public DateTime FetchedAt { get; set; } = DateTime.UtcNow;
 
-        // --- View-Only Properties (Not stored in Database) ---
-        // We use [NotMapped] so Entity Framework ignores them. 
-        // These are useful for passing data to the View without creating a new table column.
+        public List<Translation> Translations { get; set; } = new();
 
+        // --- SMART HELPER ---
+        // This is what we will send to DeepL. 
+        // If Content is empty, it automatically uses Description.
+        [NotMapped]
+        public string TextToTranslate => !string.IsNullOrWhiteSpace(Content) ? Content : Description;
+
+        // View Helpers
         [NotMapped]
         public string DisplayTranslation { get; set; } = string.Empty;
 
         [NotMapped]
         public string TargetLanguage { get; set; } = "ES";
-
-        // If you decide to implement the Translations table later, uncomment this:
-        // public List<Translation> Translations { get; set; } = new List<Translation>();
     }
 }
-
 

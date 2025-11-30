@@ -1,5 +1,6 @@
 using LinguaNews.Options;
 using LinguaNews.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,14 @@ builder.Services.Configure<NewsDataOptions>(
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+// Database context registration
+// 1. Get the string by its specific name
+var connectionString = builder.Configuration.GetConnectionString("LinguaNewsDbContext")
+    ?? throw new InvalidOperationException("Connection string 'LinguaNewsDbContext' not found.");
+
+// 2. Register the Context
+builder.Services.AddDbContext<LinguaNews.Data.LinguaNewsDbContext>(options =>
+    options.UseSqlite(connectionString));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
