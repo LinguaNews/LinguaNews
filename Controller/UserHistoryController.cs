@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LinguaNews.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class HistoryController : ControllerBase
     {

@@ -39,6 +39,11 @@ namespace LinguaNews.Pages
         public List<ArticleSnapshot> SavedArticles { get; set; } = new();
         public string? ErrorMessage { get; set; }
 
+        /// <summary>
+        /// HttpMethod URL to call external URL
+        /// </summary>
+        /// <returns></returns>
+
 		public async Task OnGetAsync()
 		{
             //  LOAD HISTORY FROM DB
