@@ -11,7 +11,7 @@ namespace LinguaNews.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(5)] 
+        [MaxLength(5)]
         public string LanguageCode { get; set; } = string.Empty;
         [JsonPropertyName("text")]
         public string TranslatedText { get; set; } = string.Empty;

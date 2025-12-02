@@ -1,8 +1,6 @@
-﻿using LinguaNews.Options;
-using LinguaNews.Models;  
+﻿using LinguaNews.Models;
+using LinguaNews.Options;
 using Microsoft.Extensions.Options;
-using System.Text.Json.Serialization;
-using System.Net.Http.Json;
 
 
 namespace LinguaNews.Services

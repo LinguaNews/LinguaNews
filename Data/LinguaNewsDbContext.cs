@@ -1,6 +1,5 @@
 ﻿using LinguaNews.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace LinguaNews.Data
 {
@@ -15,10 +14,10 @@ namespace LinguaNews.Data
         public DbSet<ArticleSnapshot> ArticleSnapshots { get; set; }
         public DbSet<Translation> Translations { get; set; }
 
-		public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-		{
-			// Add custom logic here (e.g., audit logging)
-			return await base.SaveChangesAsync(cancellationToken);
-		}
-	}
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            // Add custom logic here (e.g., audit logging)
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+    }
 }

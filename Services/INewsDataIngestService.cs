@@ -1,8 +1,6 @@
 using LinguaNews.Models;
 using LinguaNews.Options;
 using Microsoft.Extensions.Options;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Web;
 
 namespace LinguaNews.Services
