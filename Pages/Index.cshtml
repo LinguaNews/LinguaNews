@@ -15,8 +15,7 @@
                <label for="searchTermInput" class="form-label">Search Keyword</label>
                <input type="text" class="form-control" id="searchTermInput" name="q"
                       placeholder="e.g., technology, finance..." value="@Model.SearchTerm">
-          </div>
-
+        </div>
           <div class="col-md-3">
                <label for="languageSelect" class="form-label">Language</label>
                <select class="form-select" id="languageSelect" name="Language" asp-for="Language">
@@ -34,8 +33,11 @@
           <div class="col-md-1 d-flex align-items-end">
                <button type="submit" class="btn btn-primary w-100">Search</button>
           </div>
-     </div>
+    </div>
 </form>
+
+<!-- EXTERNAL JSON HERE -->
+
 <!-- Recently Viewed Articles-->
 @if (Model.SavedArticles != null && Model.SavedArticles.Any())
 {
