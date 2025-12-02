@@ -1,0 +1,72 @@
+﻿@page
+@model LinguaNews.Pages.ArticleSnapshotModel
+@{
+    ViewData["Title"] = "Article Snapshot"; // [NOTE: AI GENERATED front end code]
+}
+
+<div class="container mt-4">
+    <div class="mb-4">
+        <a asp-page="/Index" class="text-decoration-none text-secondary">
+            <i class="bi bi-arrow-left"></i> &larr; Back to Search Results
+        </a>
+
+        <h1 class="mt-3 display-6">@Model.Snapshot?.Title</h1>
+
+        <p class="text-muted">
+            <strong class="text-primary">@Model.Snapshot?.SourceName</strong>
+            &bull; Fetched: @Model.Snapshot?.FetchedAt.ToLocalTime().ToString("g")
+            &bull; <a href="@Model.Snapshot?.ArticleUrl" target="_blank" class="text-muted">Read Original Source <i class="bi bi-box-arrow-up-right"></i></a>
+        </p>
+
+        @if (!string.IsNullOrEmpty(Model.Snapshot?.ImageUrl))
+        {
+            <div class="mb-4">
+                <img src="@Model.Snapshot.ImageUrl" class="img-fluid rounded shadow-sm"
+                     style="max-height: 300px; object-fit: cover; width: 100%;"
+                     onerror="this.style.display='none'" alt="Article Hero Image">
+            </div>
+        }
+    </div>
+    </div>
+
+    <div class="card p-3 mb-4 bg-light border-0 shadow-sm">
+        <form method="post" class="row g-3 align-items-center">
+            <input type="hidden" asp-for="ArticleUrl" />
+
+            <div class="col-auto">
+                <label class="col-form-label fw-bold text-dark">Translate content to:</label>
+            </div>
+
+            <div class="col-auto">
+                <select asp-for="TargetLanguage" class="form-select border-primary">
+                    <option value="ES">Spanish (Español)</option>
+                    <option value="FR">French (Français)</option>
+                    <option value="DE">German (Deutsch)</option>
+                    <option value="IT">Italian (Italiano)</option>
+                    <option value="PT">Portuguese (Português)</option>
+                    <option value="JA">Japanese (日本語)</option>
+                    <option value="ZH">Chinese (中文)</option>
+                </select>
+            </div>
+
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary px-4">
+                    Translate <i class="bi bi-translate ms-1"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="card h-100 border-secondary">
+                <div class="card-header bg-secondary text-white fw-bold">
+                    Original Text (English)
+                </div>
+                <div class="card-body">
+                    <p class="card-text lead fs-6" style="white-space: pre-wrap; line-height: 1.7;">@Model.Snapshot?.TextToTranslate</p>
+                </div>
+            </div>
+        </div>
+    </div>
+

@@ -3,78 +3,137 @@
 @{
      ViewData["Title"] = "Article Feed";
 }
-<!DOCTYPE html>
-<html>
-<head>
-    <title>LinguaNews</title>
-</head>
-<body>
-     <div class="text-center">
-          <h1 class="display-4">Article Feed</h1>
-          <p>Real-world news articles for language immersion.</p>
-     </div>
 
-     <form method="get" class="mb-4">
-          <div class="row">
-               <div class="col-md-8">
-                    <label for="searchTermInput" class="form-label">Search Keyword</label>
-                    <input type="text" class="form-control" id="searchTermInput" name="SearchTerm" placeholder="e.g., technology, finance..." value="@Model.SearchTerm">
-               </div>
-
-               <div class="col-md-3">
-                    <label for="languageSelect" class="form-label">Language</label>
-				<select class="form-select" id="languageSelect" name="Language" asp-for="Language">  // static for now, can be dynamic later
-                         <option value="en">English</option>
-                         <option value="es">Spanish</option>
-                         <option value="fr">French</option>
-                         <option value="de">German</option>
-                         <option value="it">Italian</option>
-                         <option value="pt">Portuguese</option>
-                         <option value="ja">Japanese</option>
-                         <option value="zh">Chinese</option>
-                    </select>
-               </div>
-
-               <div class="col-md-1 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">Search</button>
-               </div>
-          </div>
-     </form>
-
-     <hr />
-
+<div class="text-center">
+     <h1 class="display-4">Article Feed</h1>
+     <p>Real-world news articles for language immersion.</p>
+</div>
+<!-- Search & Filtering-->
+<form method="get" class="mb-4">
      <div class="row">
-          @if (Model.Articles.Any())
-          {
-               @foreach (var article in Model.Articles)
-               {
-                    <div class="col-md-4 mb-3">
-                         <div class="card h-100">
-                              @if (!string.IsNullOrEmpty(article.UrlToImage))
-                              {
-                                   <img src="@article.UrlToImage" class="card-img-top" alt="@article.Title" style="height: 200px; object-fit: cover;">
-                              }
-                              else
-                              {
-                                   <img src="https://via.placeholder.com/350x200.png?text=News" class="card-img-top" alt="Placeholder">
-                              }
-                              <div class="card-body d-flex flex-column">
-                                   <h5 class="card-title">@article.Title</h5>
-                                   <p class="card-text">@article.Description</p>
-                                   <small class="text-muted mb-2">@article.SourceName</small>
+          <div class="col-md-8">
+               <label for="searchTermInput" class="form-label">Search Keyword</label>
+               <input type="text" class="form-control" id="searchTermInput" name="q"
+                      placeholder="e.g., technology, finance..." value="@Model.SearchTerm">
+          </div>
 
-                                   <a asp-page="/Article" asp-route-url="@article.Url" class="btn btn-outline-primary mt-auto">
-                                        Read & Translate
-                                   </a>
-                              </div>
+          <div class="col-md-3">
+               <label for="languageSelect" class="form-label">Language</label>
+               <select class="form-select" id="languageSelect" name="Language" asp-for="Language">
+                    <option value="EN">English</option>
+                    <option value="ES">Spanish</option>
+                    <option value="FR">French</option>
+                    <option value="DE">German</option>
+                    <option value="IT">Italian</option>
+                    <option value="PT">Portuguese</option>
+                    <option value="JA">Japanese</option>
+                    <option value="ZH">Chinese</option>
+               </select>
+          </div>
+
+          <div class="col-md-1 d-flex align-items-end">
+               <button type="submit" class="btn btn-primary w-100">Search</button>
+          </div>
+     </div>
+</form>
+<!-- Recently Viewed Articles-->
+@if (Model.SavedArticles != null && Model.SavedArticles.Any())
+{
+    <div class="mb-5 p-4 bg-light rounded-3 shadow-sm border">
+        <h5 class="text-secondary border-bottom pb-2 mb-3">
+            <i class="bi bi-clock-history me-2"></i>Recently Viewed
+        </h5>
+
+        <div class="row">
+            @foreach (var saved in Model.SavedArticles)
+            {
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100 border-0 shadow-sm hover-card">
+                        <div class="card-body">
+                            <h6 class="card-title text-truncate small fw-bold" title="@saved.Title">
+                                @saved.Title
+                            </h6>
+                            <p class="card-text small text-muted mb-2">@saved.SourceName</p>
+
+                            <a asp-page="/ArticleSnapshot"
+                               asp-route-ArticleUrl="@saved.ArticleUrl"
+                               class="stretched-link text-decoration-none small text-primary fw-bold">
+                                Open Again &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+<hr />
+
+@* Error Message Display *@
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+     <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <strong>Notice:</strong> @Model.ErrorMessage
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+     </div>
+}
+<!-- Article List-->
+<div class="row">
+     @if (Model.Articles != null && Model.Articles.Any())
+     {
+          @foreach (var article in Model.Articles)
+          {
+               <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                         @if (!string.IsNullOrEmpty(article.UrlToImage))
+                         {
+                              <img src="@article.UrlToImage" class="card-img-top" alt="@article.Title"
+                                   style="height: 200px; object-fit: cover;">
+                         }
+                         else
+                         {
+                              <img src="https://via.placeholder.com/350x200.png?text=News"
+                                   class="card-img-top" alt="Placeholder">
+                         }
+                         <div class="card-body d-flex flex-column">
+                              <h5 class="card-title">@article.Title</h5>
+                        <p class="card-text small text-muted flex-grow-1">
+                            @{
+                                // Configurable limit (DeepL context limit or just UI preference)
+                                int previewLength = 150;
+                                string fullDesc = article.Description ?? "";
+                            }
+
+                            @if (fullDesc.Length > previewLength)
+                            {
+                                @fullDesc.Substring(0, previewLength)
+                    
+                                <text>...</text>
+                            }
+                            else
+                            {
+                                @fullDesc
+                            }
+                        </p>
+                              <small class="text-muted mb-2">@article.SourceName</small>
+                        <a asp-page="/ArticleSnapshot"
+                           asp-route-ArticleUrl="@article.Url"
+                           asp-route-IncomingTitle="@article.Title"
+                           asp-route-IncomingDescription="@article.Description"
+                           asp-route-IncomingSource="@article.SourceName"
+                           asp-route-IncomingImage="@article.UrlToImage"
+                           class="btn btn-outline-primary mt-auto">
+                            Read & Translate
+                        </a>
                          </div>
                     </div>
-               }
+               </div>
           }
-          else
-          {
-               <p>No articles found. Try adjusting your search or filters.</p>
-          }
-     </div></div>
-</body>
-</html>
+     }
+     else if (string.IsNullOrEmpty(Model.ErrorMessage))
+     {
+          <div class="col-12">
+               <p class="text-center text-muted">No articles found. Try adjusting your search or filters.</p>
+          </div>
+     }
+</div>

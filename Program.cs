@@ -1,34 +1,26 @@
-using LinguaNews.Config;
+using LinguaNews.Options;
 using LinguaNews.Services;
-using Microsoft.Extensions.Options;
-using System.Net.Http.Headers;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();
-builder.Services.Configure<ParkWhizOptions>(builder.Configuration.GetSection("ParkWhiz"));
+builder.Services.AddHttpClient<INewsDataIngestService, NewsDataIngestService>(); // Due to Service registration, need specific build call for service class
+builder.Services.Configure<NewsDataOptions>(
+    builder.Configuration.GetSection("NewsData")); // Configuration for external service class
+builder.Services.AddControllers();
+builder.Services.AddMemoryCache();
+builder.Services.AddEndpointsApiExplorer();
 
-// Register HttpClient with options-aware configuration
-builder.Services.AddHttpClient<IParkWhizService, ParkWhizService>()
-    .ConfigureHttpClient((sp, client) =>
-    {
-        var opts = sp.GetRequiredService<IOptions<ParkWhizOptions>>().Value;
-        if (!string.IsNullOrWhiteSpace(opts.BaseUrl))
-        {
-            client.BaseAddress = new Uri(opts.BaseUrl);
-        }
+// Database context registration
+// 1. Get the string by its specific name
+var connectionString = builder.Configuration.GetConnectionString("LinguaNewsDbContext")
+    ?? throw new InvalidOperationException("Connection string 'LinguaNewsDbContext' not found.");
 
-        // Attach API key as a Bearer token if provided. Adjust if ParkWhiz requires a different header or query param.
-        if (!string.IsNullOrWhiteSpace(opts.ApiKey))
-        {
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", opts.ApiKey);
-        }
-
-        client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-    });
-
+// 2. Register the Context
+builder.Services.AddDbContext<LinguaNews.Data.LinguaNewsDbContext>(options =>
+    options.UseSqlite(connectionString));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -45,26 +37,9 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+// Mapping endpoints
 app.MapRazorPages();
 
-app.Run();
-
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseAuthorization();
-
-app.MapRazorPages();
+app.MapControllers();
 
 app.Run();
