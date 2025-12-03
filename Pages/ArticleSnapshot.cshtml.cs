@@ -14,7 +14,7 @@ namespace LinguaNews.Pages
         private readonly ITranslationService _translationService;
 
         public ArticleSnapshotModel(
-            LinguaNewsDbContext db, 
+            LinguaNewsDbContext db,
             //INewsDataIngestService ingestService,
             ITranslationService translationService)
         {
@@ -27,7 +27,7 @@ namespace LinguaNews.Pages
         [BindProperty(SupportsGet = true)]
         public string ArticleUrl { get; set; } = string.Empty;
 
-        [BindProperty(SupportsGet = true)] 
+        [BindProperty(SupportsGet = true)]
         public string? IncomingTitle { get; set; }              // IncomingX are from Index page
 
         [BindProperty(SupportsGet = true)]
@@ -72,15 +72,15 @@ namespace LinguaNews.Pages
                 _db.ArticleSnapshots.Add(existingSnapshot);
                 await _db.SaveChangesAsync();
             }
-           
+
             Snapshot = existingSnapshot;
-            
+
             var cachedTrans = Snapshot.Translations.FirstOrDefault(t => t.LanguageCode == TargetLanguage);
             if (cachedTrans != null)
             {
                 Snapshot.DisplayTranslation = cachedTrans.TranslatedText;
                 BuildSentenceMap(
-                    Snapshot.TextToTranslate, 
+                    Snapshot.TextToTranslate,
                     cachedTrans.TranslatedText);
             }
             return Page();

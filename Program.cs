@@ -16,6 +16,12 @@ builder.Services.AddHttpClient<ITranslationService, DeepLTranslationService>();
 builder.Services.Configure<DeepLOptions>(
     builder.Configuration.GetSection("DeepL"));
 
+// Registering ParkWhiz Service
+builder.Services.AddHttpClient<IParkWhizService, ParkWhizService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.parkwhiz.com/v4/");
+});
+
 // Adding Controllers with JSON options to handle reference cycles (how to read nested JSON!!)
 builder.Services.AddControllers()
 .AddJsonOptions(options =>

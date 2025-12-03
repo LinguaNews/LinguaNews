@@ -1,4 +1,4 @@
-using LinguaNews.Data; 
+using LinguaNews.Data;
 using LinguaNews.Models;
 using LinguaNews.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -9,32 +9,32 @@ using System.Text.Json;
 
 namespace LinguaNews.Pages
 {
-	public class IndexModel : PageModel
-	{
+    public class IndexModel : PageModel
+    {
         private readonly INewsDataIngestService _newsService;
         private readonly LinguaNewsDbContext _db;
         private readonly IMemoryCache _cache;
         private readonly ILogger<IndexModel> _logger;
-		
+
         public IndexModel(
             INewsDataIngestService newsService,
             LinguaNewsDbContext db,
             IMemoryCache cache,
-		    ILogger<IndexModel> logger)
+            ILogger<IndexModel> logger)
         {
             _newsService = newsService;
             _db = db;
             _cache = cache;
             _logger = logger;
-		}
+        }
 
-		[BindProperty(SupportsGet = true, Name = "q")]
-		public string? SearchTerm { get; set; }
+        [BindProperty(SupportsGet = true, Name = "q")]
+        public string? SearchTerm { get; set; }
 
-		[BindProperty(SupportsGet = true)]
-		public string? Language { get; set; }
+        [BindProperty(SupportsGet = true)]
+        public string? Language { get; set; }
 
-		public List<ArticleViewModel> Articles { get; set; } = new();
+        public List<ArticleViewModel> Articles { get; set; } = new();
         public bool IsCachedResponse { get; set; } = false;
         public List<ArticleSnapshot> SavedArticles { get; set; } = new();
         public string? ErrorMessage { get; set; }
@@ -44,8 +44,8 @@ namespace LinguaNews.Pages
         /// </summary>
         /// <returns></returns>
 
-		public async Task OnGetAsync()
-		{
+        public async Task OnGetAsync()
+        {
             //  LOAD HISTORY FROM DB
             try
             {
@@ -92,7 +92,7 @@ namespace LinguaNews.Pages
                             Title = a.Title ?? "No Title",
                             Description = a.Description ?? "No Description",
                             Url = a.Link ?? string.Empty,
-                            UrlToImage = !string.IsNullOrWhiteSpace(a.ImageUrl) ? a.ImageUrl:"/LingaNews.png", 
+                            UrlToImage = !string.IsNullOrWhiteSpace(a.ImageUrl) ? a.ImageUrl : "/LingaNews.png",
                             SourceName = a.SourceId ?? "Unknown",
                         })
                         .ToList();

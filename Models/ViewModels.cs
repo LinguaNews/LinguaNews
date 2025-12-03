@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace LinguaNews.Models
+﻿namespace LinguaNews.Models
 {
     // NOTE: This contains only the data we need to display on the INDEX page. DOMAIN MODELS used to populate ArticleSnapshot
     public class ArticleViewModel
